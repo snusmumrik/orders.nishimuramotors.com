@@ -1,0 +1,159 @@
+ja:
+  activerecord:
+    models:
+      spree/address: spree/address  #g
+      spree/line_item: spree/line_item  #g
+      spree/order: 注文
+      spree/product: spree/product  #g
+      spree/variant: spree/variant  #g
+
+    attributes:
+      spree/address:
+        address1: address1  #g
+        address2: address2  #g
+        alternative_phone: alternative_phone  #g
+        city: city  #g
+        company: company  #g
+        firstname: firstname  #g
+        lastname: lastname  #g
+        phone: phone  #g
+        state_name: state_name  #g
+        zipcode: zipcode  #g
+
+      spree/line_item:
+        additional_tax_total: additional_tax_total  #g
+        adjustment_total: adjustment_total  #g
+        adjustments: adjustments  #g
+        cost_price: cost_price  #g
+        currency: currency  #g
+        included_tax_total: included_tax_total  #g
+        inventory_units: inventory_units  #g
+        order: :activerecord.models.order  #g
+        pre_tax_amount: pre_tax_amount  #g
+        price: price  #g
+        product: :activerecord.models.product  #g
+        promo_total: promo_total  #g
+        quantity: quantity  #g
+        tax_category: :activerecord.models.tax_category  #g
+        variant: :activerecord.models.variant  #g
+
+      spree/order:
+        additional_tax_total: additional_tax_total  #g
+        adjustment_total: 税
+        adjustments: adjustments  #g
+        all_adjustments: all_adjustments  #g
+        approved_at: approved_at  #g
+        bill_address: 請求先
+        canceled_at: canceled_at  #g
+        channel: channel  #g
+        completed_at: completed_at  #g
+        confirmation_delivered: confirmation_delivered  #g
+        considered_risky: considered_risky  #g
+        currency: currency  #g
+        email: email  #g
+        guest_token: guest_token  #g
+        included_tax_total: included_tax_total  #g
+        inventory_units: inventory_units  #g
+        item_total: 商品代金
+        last_ip_address: last_ip_address  #g
+        line_item_adjustments: line_item_adjustments  #g
+        line_items: line_items  #g
+        number: 注文番号
+        order_promotions: order_promotions  #g
+        payment_state: payment_state  #g
+        payment_total: payment_total  #g
+        payments: payments  #g
+        products: products  #g
+        promo_total: promo_total  #g
+        promotions: promotions  #g
+        refunds: refunds  #g
+        reimbursements: reimbursements  #g
+        return_authorizations: return_authorizations  #g
+        ship_address: 発送先
+        shipment_adjustments: shipment_adjustments  #g
+        shipment_state: 発送状態
+        shipment_total: 送料
+        shipments: shipments  #g
+        special_instructions: special_instructions  #g
+        state: 注文状態
+        state_changes: state_changes  #g
+        state_lock_version: state_lock_version  #g
+        store: :activerecord.models.store  #g
+        total: 合計
+        variants: variants  #g
+
+      spree/product:
+        available_on: available_on  #g
+        avg_rating: avg_rating  #g
+        classifications: classifications  #g
+        deleted_at: deleted_at  #g
+        description: description  #g
+        line_items: line_items  #g
+        master: :activerecord.models.master  #g
+        meta_description: meta_description  #g
+        meta_keywords: meta_keywords  #g
+        meta_title: meta_title  #g
+        name: 商品名
+        option_types: option_types  #g
+        orders: orders  #g
+        prices: prices  #g
+        product_option_types: product_option_types  #g
+        product_promotion_rules: product_promotion_rules  #g
+        product_properties: product_properties  #g
+        promotion_rules: promotion_rules  #g
+        promotionable: promotionable  #g
+        properties: properties  #g
+        shipping_category: :activerecord.models.shipping_category  #g
+        slug: slug  #g
+        stock_items: stock_items  #g
+        tax_category: :activerecord.models.tax_category  #g
+        taxons: taxons  #g
+        variants: variants  #g
+        variants_including_master: variants_including_master  #g
+
+      spree/variant:
+        cost_currency: cost_currency  #g
+        cost_price: cost_price  #g
+        deleted_at: deleted_at  #g
+        depth: depth  #g
+        height: height  #g
+        images: images  #g
+        inventory_units: inventory_units  #g
+        is_master: is_master  #g
+        line_items: line_items  #g
+        option_value_variants: option_value_variants  #g
+        option_values: option_values  #g
+        orders: orders  #g
+        position: position  #g
+        prices: prices  #g
+        product: :activerecord.models.product  #g
+        sku: sku  #g
+        stock_items: stock_items  #g
+        stock_locations: stock_locations  #g
+        stock_movements: stock_movements  #g
+        tax_category: :activerecord.models.tax_category  #g
+        track_inventory: track_inventory  #g
+        weight: weight  #g
+        width: width  #g
+
+  links:
+    back: 戻る
+    back_to_top: トップへ戻る
+    destroy: 削除
+    edit: 編集
+    index: 一覧
+    new: 新規作成
+    show: 詳細
+
+  views:
+    edit: 編集
+    index: 一覧
+    new: 新規作成
+    show: 詳細
+
+    pagination:
+      first: "&laquo; 最初"
+      last: "最後 &raquo;"
+      previous: "&lsaquo; 前"
+      next: "次 &rsaquo;"
+      truncate: "..."

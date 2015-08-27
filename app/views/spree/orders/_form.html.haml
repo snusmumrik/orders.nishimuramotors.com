@@ -1,0 +1,10 @@
+= form_for @spree_order do |f|
+  - if @spree_order.errors.any?
+    #error_explanation
+      %h2= "#{pluralize(@spree_order.errors.count, "error")} prohibited this spree_order from being saved:"
+      %ul
+        - @spree_order.errors.full_messages.each do |msg|
+          %li= msg
+
+  .actions
+    = f.submit 'Save'

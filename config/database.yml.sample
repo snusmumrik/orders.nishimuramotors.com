@@ -50,5 +50,5 @@ test:
 production:
   <<: *default
   database: parts_nishimuramotors_com_production
-  username: parts_nishimuramotors_com
+  username: root
   password: <%= ENV['PARTS_NISHIMURAMOTORS_COM_DATABASE_PASSWORD'] %>

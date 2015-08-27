@@ -1,0 +1,19 @@
+%h1 Listing spree_products
+
+%table
+  %thead
+    %tr
+      %th
+      %th
+      %th
+
+  %tbody
+    - @spree_products.each do |spree_product|
+      %tr
+        %td= link_to 'Show', spree_product
+        %td= link_to 'Edit', edit_spree_product_path(spree_product)
+        %td= link_to 'Destroy', spree_product, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+%br
+
+= link_to 'New Product', new_spree_product_path

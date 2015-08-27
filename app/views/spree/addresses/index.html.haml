@@ -1,0 +1,19 @@
+%h1 Listing spree_addresses
+
+%table
+  %thead
+    %tr
+      %th
+      %th
+      %th
+
+  %tbody
+    - @spree_addresses.each do |spree_address|
+      %tr
+        %td= link_to 'Show', spree_address
+        %td= link_to 'Edit', edit_spree_address_path(spree_address)
+        %td= link_to 'Destroy', spree_address, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+%br
+
+= link_to 'New Address', new_spree_address_path

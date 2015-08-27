@@ -43,3 +43,5 @@ group :development, :test do
   gem 'spring'
 end
 
+gem 'haml-rails', '~> 0.9'
+gem 'i18n_generators'
