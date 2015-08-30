@@ -1,6 +1,63 @@
 %p#notice= notice
 
-
-= link_to 'Edit', edit_spree_order_path(@spree_order)
-\|
-= link_to 'Back', spree_orders_path
+%table.table.table-default
+  %tr
+    %th=t "activerecord.attributes.spree/order.number"
+    %td= @spree_order.number
+  %tr
+    %th=t "activerecord.attributes.spree/product.name"
+    %td
+      - @spree_order.products.each do |p|
+        = p.name
+        <br>
+  %tr
+    %th
+      =t "activerecord.attributes.spree/order.item_total"
+      = surround "(", ")" do
+        =t "activerecord.attributes.spree/order.adjustment_total"
+    %td
+      = number_to_currency @spree_order.item_total
+      <br>
+      = surround "(", ")" do
+        = number_to_currency @spree_order.adjustment_total
+  %tr
+    %th=t "activerecord.attributes.spree/order.shipment_total"
+    %td= number_to_currency @spree_order.shipment_total
+  %tr
+    %th=t "activerecord.attributes.spree/order.total"
+    %td= number_to_currency @spree_order.total
+  %tr
+    %th=t "activerecord.attributes.spree/order.bill_address"
+    %td
+      = @spree_order.bill_address.zipcode
+      <br>
+      = "#{@spree_order.bill_address.state.name}#{@spree_order.bill_address.city}#{@spree_order.bill_address.address1}"
+      <br>
+      = @spree_order.bill_address.address2
+      <br>
+      = "#{@spree_order.bill_address.lastname} #{@spree_order.bill_address.firstname}"
+      <br>
+      = @spree_order.bill_address.phone
+  %tr
+    %th=t "activerecord.attributes.spree/order.ship_address"
+    %td
+      = @spree_order.ship_address.zipcode
+      <br>
+      = "#{@spree_order.ship_address.state.name}#{@spree_order.ship_address.city}#{@spree_order.ship_address.address1}"
+      <br>
+      = @spree_order.ship_address.address2
+      <br>
+      = "#{@spree_order.ship_address.lastname} #{@spree_order.ship_address.firstname}"
+      <br>
+      = @spree_order.ship_address.phone
+  %tr
+    %th=t "activerecord.attributes.spree/order.state"
+    %td= @spree_order.state
+  %tr
+    %th=t "activerecord.attributes.spree/order.shipment_state"
+    %td= @spree_order.shipment_state
+  %tr
+    %th
+    %td
+      -# = link_to t("links.edit"), edit_spree_order_path(@spree_order), class: "btn btn-default"
+      = link_to t("links.back"), :back, class: "btn btn-default"

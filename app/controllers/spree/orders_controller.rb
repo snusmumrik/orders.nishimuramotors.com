@@ -4,7 +4,7 @@ class Spree::OrdersController < ApplicationController
   # GET /spree/orders
   # GET /spree/orders.json
   def index
-    @spree_orders = Spree::Order.all
+    @spree_orders = Spree::Order.order("created_at DESC").page params[:page]
   end
 
   # GET /spree/orders/1

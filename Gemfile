@@ -45,3 +45,4 @@ end
 
 gem 'haml-rails', '~> 0.9'
 gem 'i18n_generators'
+gem 'kaminari'

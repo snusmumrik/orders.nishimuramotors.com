@@ -1,5 +1,7 @@
 %h1= t("activerecord.models.spree/order") + t("views.index")
 
+= paginate @spree_orders
+
 %table.table.table-default
   %thead
     %tr
@@ -22,9 +24,9 @@
       %tr
         %td= spree_order.number
         %td
-          %ul
-            - spree_order.products.each do |p|
-              %li= p.name
+          - spree_order.products.each do |p|
+            = p.name
+            <br>
         %td
           = number_to_currency spree_order.item_total
           <br>
@@ -33,23 +35,31 @@
         %td= number_to_currency spree_order.shipment_total
         %td= number_to_currency spree_order.total
         %td
-          %ul
-            %li= spree_order.bill_address.zipcode
-            %li= "#{spree_order.bill_address.state.name}#{spree_order.bill_address.city}#{spree_order.bill_address.address1}"
-            %li= spree_order.bill_address.address2
-            %li= "#{spree_order.bill_address.lastname} #{spree_order.bill_address.firstname}"
-            %li= spree_order.bill_address.phone
+          = spree_order.bill_address.zipcode
+          <br>
+          = "#{spree_order.bill_address.state.name}#{spree_order.bill_address.city}#{spree_order.bill_address.address1}"
+          <br>
+          = spree_order.bill_address.address2
+          <br>
+          = "#{spree_order.bill_address.lastname} #{spree_order.bill_address.firstname}"
+          <br>
+          = spree_order.bill_address.phone
         %td
-          %ul
-            %li= spree_order.ship_address.zipcode
-            %li= "#{spree_order.ship_address.state.name}#{spree_order.ship_address.city}#{spree_order.ship_address.address1}"
-            %li= spree_order.ship_address.address2
-            %li= "#{spree_order.ship_address.lastname} #{spree_order.ship_address.firstname}"
-            %li= spree_order.ship_address.phone
+          = spree_order.ship_address.zipcode
+          <br>
+          = "#{spree_order.ship_address.state.name}#{spree_order.ship_address.city}#{spree_order.ship_address.address1}"
+          <br>
+          = spree_order.ship_address.address2
+          <br>
+          = "#{spree_order.ship_address.lastname} #{spree_order.ship_address.firstname}"
+          <br>
+          = spree_order.ship_address.phone
         %td= spree_order.state
         %td= spree_order.shipment_state
         %td
           %ul
             %li= link_to t("links.show"), spree_order_path(spree_order), class: "btn btn-default"
-            %li= link_to t("links.edit"), edit_spree_order_path(spree_order), class: "btn btn-default"
-            %li= link_to t("links.destroy"), spree_order, :method => :delete, :data => { :confirm => 'Are you sure?' }, class: "btn btn-default"
+            -# %li= link_to t("links.edit"), edit_spree_order_path(spree_order), class: "btn btn-default"
+            -# %li= link_to t("links.destroy"), spree_order, :method => :delete, :data => { :confirm => 'Are you sure?' }, class: "btn btn-default"
+
+= paginate @spree_orders

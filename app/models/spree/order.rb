@@ -32,4 +32,6 @@ class Spree::Order < ActiveRecord::Base
       pluck(:state).uniq
     end
   end
+
+  paginates_per 10
 end
