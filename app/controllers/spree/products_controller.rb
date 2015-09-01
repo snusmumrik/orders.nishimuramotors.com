@@ -4,7 +4,7 @@ class Spree::ProductsController < ApplicationController
   # GET /spree/products
   # GET /spree/products.json
   def index
-    @spree_products = Spree::Product.all
+    @spree_products = Spree::Product.page params[:page]
   end
 
   # GET /spree/products/1

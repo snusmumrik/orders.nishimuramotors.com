@@ -56,8 +56,6 @@
   %tr
     %th=t "activerecord.attributes.spree/order.shipment_state"
     %td= @spree_order.shipment_state
-  %tr
-    %th
-    %td
-      -# = link_to t("links.edit"), edit_spree_order_path(@spree_order), class: "btn btn-default"
-      = link_to t("links.back"), :back, class: "btn btn-default"
+
+-# = link_to t("links.edit"), edit_spree_order_path(@spree_order), class: "btn btn-default"
+= link_to t("links.back"), :back, class: "btn btn-default"

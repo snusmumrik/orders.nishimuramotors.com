@@ -1,0 +1,17 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  spree_product_id: 
+  ngsj: MyString
+  iiparts: MyString
+  amazon: MyString
+  rakuten: MyString
+  yahoo: MyString
+
+two:
+  spree_product_id: 
+  ngsj: MyString
+  iiparts: MyString
+  amazon: MyString
+  rakuten: MyString
+  yahoo: MyString

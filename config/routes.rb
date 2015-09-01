@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :suppliers
   namespace :spree do
     resources :products
   end
@@ -18,6 +19,7 @@ Rails.application.routes.draw do
 
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
+    get 'suppliers/new/:id' => 'suppliers#new'
 
   # Example of named route that can be invoked with purchase_url(id: product.id)
   #   get 'products/:id/purchase' => 'catalog#purchase', as: :purchase

@@ -1,19 +1,41 @@
-%h1 Listing spree_products
+%h1= t("activerecord.models.spree/product") + t("views.index")
 
-%table
+= paginate @spree_products
+
+%table.table.table-default
   %thead
     %tr
+      %th=t "activerecord.attributes.spree/product.name"
+      %th=t "activerecord.attributes.supplier.ngsj"
+      %th=t "activerecord.attributes.supplier.iiparts"
+      %th=t "activerecord.attributes.supplier.amazon"
+      %th=t "activerecord.attributes.supplier.rakuten"
+      %th=t "activerecord.attributes.supplier.yahoo"
       %th
-      %th
-      %th
+      -# %th
+      -# %th
 
   %tbody
     - @spree_products.each do |spree_product|
       %tr
-        %td= link_to 'Show', spree_product
-        %td= link_to 'Edit', edit_spree_product_path(spree_product)
-        %td= link_to 'Destroy', spree_product, :method => :delete, :data => { :confirm => 'Are you sure?' }
+        %td= link_to spree_product.name, spree_product_path(spree_product)
+        %td
+          - if spree_product.price
+            = link_to number_to_currency(spree_product.price.ngsj), spree_product.supplier.ngsj, target: :blank
+        %td
+          - if spree_product.price
+            = link_to number_to_currency(spree_product.price.iiparts), spree_product.supplier.iiparts, target: :blank
+        %td
+          - if spree_product.price
+            = link_to number_to_currency(spree_product.price.amazon), spree_product.supplier.amazon, target: :blank
+        %td
+          - if spree_product.price
+            = link_to number_to_currency(spree_product.price.rakuten), spree_product.supplier.rakuten, target: :blank
+        %td
+          - if spree_product.price
+            = link_to number_to_currency(spree_product.price.yahoo), spree_product.supplier.yahoo, target: :blank
+        %td= link_to t("links.show"), spree_product, class: "btn btn-default"
+        -# %td= link_to 'Edit', edit_spree_product_path(spree_product)
+        -# %td= link_to 'Destroy', spree_product, :method => :delete, :data => { :confirm => 'Are you sure?' }
 
-%br
-
-= link_to 'New Product', new_spree_product_path
+= paginate @spree_products

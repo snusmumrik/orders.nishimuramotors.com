@@ -1,0 +1,31 @@
+%h1 Listing suppliers
+
+%table
+  %thead
+    %tr
+      %th Spree product
+      %th Ngsj
+      %th Iiparts
+      %th Amazon
+      %th Rakuten
+      %th Yahoo
+      %th
+      %th
+      %th
+
+  %tbody
+    - @suppliers.each do |supplier|
+      %tr
+        %td= supplier.spree_product
+        %td= supplier.ngsj
+        %td= supplier.iiparts
+        %td= supplier.amazon
+        %td= supplier.rakuten
+        %td= supplier.yahoo
+        %td= link_to 'Show', supplier
+        %td= link_to 'Edit', edit_supplier_path(supplier)
+        %td= link_to 'Destroy', supplier, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+%br
+
+= link_to 'New Supplier', new_supplier_path

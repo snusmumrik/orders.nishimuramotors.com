@@ -35,4 +35,9 @@ class Spree::Product < ActiveRecord::Base
 
   has_many :line_items, through: :variants_including_master
   has_many :orders, through: :line_items
+
+  has_one :supplier, foreign_key: :spree_product_id
+  has_one :price, foreign_key: :spree_product_id
+
+  paginates_per 10
 end

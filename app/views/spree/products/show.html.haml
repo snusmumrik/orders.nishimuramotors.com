@@ -1,6 +1,27 @@
+%h1= t("activerecord.models.spree/product") + t("views.show")
+
 %p#notice= notice
 
+%table.table.table-default
+  %thead
+    %tr
+      %th=t "activerecord.attributes.spree/product.name"
+      %th= t("activerecord.attributes.supplier.ngsj") + t("views.supplier.link")
+      %th= t("activerecord.attributes.supplier.iiparts") + t("views.supplier.link")
+      %th= t("activerecord.attributes.supplier.amazon") + t("views.supplier.link")
+      %th= t("activerecord.attributes.supplier.rakuten") + t("views.supplier.link")
+      %th= t("activerecord.attributes.supplier.yahoo") + t("views.supplier.link")
+  %tbody
+    %tr
+      %td= @spree_product.name
+      %td= link_to @spree_product.supplier.try(:ngsj), @spree_product.supplier.try(:ngsj), target: :blank
+      %td= link_to @spree_product.supplier.try(:iiparts), @spree_product.supplier.try(:iiparts), target: :blank
+      %td= link_to @spree_product.supplier.try(:amazon), @spree_product.supplier.try(:amazon), target: :blank
+      %td= link_to @spree_product.supplier.try(:rakuten), @spree_product.supplier.try(:rakuten), target: :blank
+      %td= link_to @spree_product.supplier.try(:yahoo), @spree_product.supplier.try(:yahoo), target: :blank
 
-= link_to 'Edit', edit_spree_product_path(@spree_product)
-\|
-= link_to 'Back', spree_products_path
+- if @spree_product.supplier
+  = link_to t("links.edit"), edit_supplier_path(@spree_product.supplier), class: "btn btn-default"
+- else
+  = link_to t("links.edit"), "#{new_supplier_path}/#{@spree_product.id}", class: "btn btn-default"
+= link_to t("links.back"), spree_products_path, class: "btn btn-default"
