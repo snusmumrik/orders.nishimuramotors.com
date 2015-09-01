@@ -9,7 +9,7 @@ ja:
       spree/variant: spree/variant  #g
       price: price  #g
       supplier: 仕入先
-
+      user: user  #g
 
     attributes:
       spree/address:
@@ -119,6 +119,7 @@ ja:
         variants_including_master: variants_including_master  #g
         product: :activerecord.models.product  #g
         supplier: :activerecord.models.supplier  #g
+        price: :activerecord.models.price  #g
 
       spree/state:
         name: name  #g
@@ -165,6 +166,19 @@ ja:
         spree_product: :activerecord.models.spree/product
         yahoo: ヤフー
 
+      user:
+        current_sign_in_ip: current_sign_in_ip  #g
+        email: メールアドレス
+        encrypted_password: encrypted_password  #g
+        last_sign_in_at: last_sign_in_at  #g
+        last_sign_in_ip: last_sign_in_ip  #g
+        password: パスワード
+        password_confirmation: パスワードの確認
+        remember_created_at: remember_created_at  #g
+        remember_me: ログイン情報を記憶
+        reset_password_sent_at: reset_password_sent_at  #g
+        reset_password_token: reset_password_token  #g
+
   links:
     back: 戻る
     back_to_top: トップへ戻る
@@ -174,6 +188,23 @@ ja:
     new: 新規作成
     save: 保存
     show: 詳細
+
+    user:
+      sign_in: サインイン
+      sign_in_with: でサインイン
+      sign_out: サインアウト
+      sign_up: サインアップ
+      change_password: パスワードの変更
+      reset_password: パスワードの再設定
+      forgot_password: パスワードをお忘れですか？
+      resend_confirmation: 登録メールの再送
+
+  messages:
+    created: を登録しました。
+    updated: を更新しました。
+    destroy: を削除しました。
+    are_you_sure: 本当によろしいですか？
+    unauthorided: 権限のないリクエストです
 
   views:
     edit: 編集
@@ -190,3 +221,5 @@ ja:
 
     supplier:
       link: リンク
+
+  current_sign_in_at: current_sign_in_at  #g

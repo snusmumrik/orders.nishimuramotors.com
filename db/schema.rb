@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150831082920) do
+ActiveRecord::Schema.define(version: 20150901002423) do
 
   create_table "friendly_id_slugs", force: :cascade do |t|
     t.string   "slug",           limit: 255, null: false
@@ -1185,6 +1185,24 @@ ActiveRecord::Schema.define(version: 20150831082920) do
   end
 
   add_index "suppliers", ["spree_product_id"], name: "index_suppliers_on_spree_product_id", using: :btree
+
+  create_table "users", force: :cascade do |t|
+    t.string   "email",                  limit: 255, default: "", null: false
+    t.string   "encrypted_password",     limit: 255, default: "", null: false
+    t.string   "reset_password_token",   limit: 255
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
+    t.integer  "sign_in_count",          limit: 4,   default: 0,  null: false
+    t.datetime "current_sign_in_at"
+    t.datetime "last_sign_in_at"
+    t.string   "current_sign_in_ip",     limit: 255
+    t.string   "last_sign_in_ip",        limit: 255
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
+  add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
 
   add_foreign_key "prices", "spree_products"
   add_foreign_key "suppliers", "spree_products"
