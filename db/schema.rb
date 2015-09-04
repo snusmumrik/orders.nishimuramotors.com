@@ -879,10 +879,13 @@ ActiveRecord::Schema.define(version: 20150901002423) do
   add_index "spree_state_changes", ["user_id"], name: "index_spree_state_changes_on_user_id", using: :btree
 
   create_table "spree_states", force: :cascade do |t|
-    t.string  "name",       limit: 255
-    t.string  "abbr",       limit: 255
-    t.integer "country_id", limit: 4
+    t.string   "name",       limit: 255
+    t.string   "abbr",       limit: 255
+    t.integer  "country_id", limit: 4
+    t.datetime "updated_at"
   end
+
+  add_index "spree_states", ["country_id"], name: "index_spree_states_on_country_id", using: :btree
 
   create_table "spree_stock_items", force: :cascade do |t|
     t.integer  "stock_location_id", limit: 4
