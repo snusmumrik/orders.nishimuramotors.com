@@ -73,30 +73,28 @@ class Spree::Product < ActiveRecord::Base
     product_list_page.search("ul.layout160 li").each_with_index do |li, i|
       p i
 
-      image_url = nil
-      name = nil
-      model_number = nil
-      price = nil
-      description = nil
+      detail_link = li.at(".item_data a").attr("href")
+      p detail_link
 
-      li.search("a").each_with_index do |a, i|
-        case i
-        when 0
-          image_url = a.at("img").attr("src")
-        when 1
-          name = a.at("span.goods_name").text
-          model_number = a.at("span.model_number_value").text
-        end
+      detail_page = agent.get(detail_link)
+
+      image_url = detail_page.at(".global_photo a").attr("href")
+      name = detail_page.at(".goods_name").text
+      model_number = detail_page.at(".model_number_value").text
+      price = detail_page.at(".selling_price .figure").text
+      price = price.sub("円", "") if price
+
+
+      if detail_page.at("#submit_cart_input_btn")
+        sold_out = false
+      else
+        sold_out = true
       end
 
-      price = li.at("p.selling_price span").text if li.at("p.selling_price span")
-      description = li.at("p.item_desc").text.strip if li.at("p.item_desc")
-
-      sold_out = true
-      li.at(".add_cart").search("form").each do |form|
-        if form.at("input[type='submit']").attr("value") == "カートに入れる"
-          sold_out = false
-        end
+      if detail_page.at(".item_desc_text")
+        description = detail_page.at(".item_desc_text").text.strip
+      else
+        description = ""
       end
 
       p "IMAGE:#{image_url}, NAME:#{name}, MODEL NUMBER:#{model_number}, PRICE:#{price}, DESCRIPTION:#{description}, SOLD OUT:#{sold_out}"

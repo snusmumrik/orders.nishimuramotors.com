@@ -29,7 +29,13 @@ class SuppliersController < ApplicationController
 
     respond_to do |format|
       if @supplier.save
-        format.html { redirect_to @spree_product, notice: 'Supplier was successfully created.' }
+        Supplier.update_price(@supplier.spree_product_id)
+        if session[:previous_page]
+          redirect_path = session[:previous_page]
+        else
+          redirect_path = spree_products_path
+        end
+        format.html { redirect_to reditect_path, notice: t("activerecord.models.supplier") + t("messages.created") }
         format.json { render :show, status: :created, location: @supplier }
       else
         format.html { render :new }
@@ -43,7 +49,13 @@ class SuppliersController < ApplicationController
   def update
     respond_to do |format|
       if @supplier.update(supplier_params)
-        format.html { redirect_to @spree_product, notice: 'Supplier was successfully updated.' }
+        Supplier.update_price(@supplier.spree_product_id)
+        if session[:previous_page]
+          redirect_path = session[:previous_page]
+        else
+          redirect_path = spree_products_path
+        end
+        format.html { redirect_to redirect_path, notice: t("activerecord.models.supplier") + t("messages.updated") }
         format.json { render :show, status: :ok, location: @supplier }
       else
         format.html { render :edit }

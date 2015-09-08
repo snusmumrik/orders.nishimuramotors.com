@@ -2,8 +2,12 @@
     width: 98% !important;
 }
 
-th {
+th,td.center {
     text-align: center !important;
+}
+
+td {
+    vertical-align: middle !important;
 }
 
 ul {

@@ -1,0 +1,9 @@
+%p#notice= notice
+
+%p
+  %b Percentage:
+  = @profit.percentage
+
+= link_to 'Edit', edit_profit_path(@profit)
+\|
+= link_to 'Back', profits_path

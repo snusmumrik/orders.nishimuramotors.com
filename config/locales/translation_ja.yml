@@ -10,6 +10,7 @@ ja:
       price: price  #g
       supplier: 仕入先
       user: user  #g
+      profit: 粗利設定
 
     attributes:
       spree/address:
@@ -103,7 +104,7 @@ ja:
         name: 商品名
         option_types: option_types  #g
         orders: orders  #g
-        prices: prices  #g
+        prices: 販売価格
         product_option_types: product_option_types  #g
         product_promotion_rules: product_promotion_rules  #g
         product_properties: product_properties  #g
@@ -178,6 +179,10 @@ ja:
         remember_me: ログイン情報を記憶
         reset_password_sent_at: reset_password_sent_at  #g
         reset_password_token: reset_password_token  #g
+        current_sign_in_at: current_sign_in_at  #g
+
+      profit:
+        percentage: パーセンテージ
 
   links:
     back: 戻る
@@ -221,5 +226,3 @@ ja:
 
     supplier:
       link: リンク
-
-  current_sign_in_at: current_sign_in_at  #g

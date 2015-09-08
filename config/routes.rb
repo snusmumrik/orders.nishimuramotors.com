@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :profits
   devise_for :users
   resources :suppliers
   namespace :spree do

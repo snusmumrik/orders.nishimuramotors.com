@@ -6,6 +6,7 @@
   %thead
     %tr
       %th=t "activerecord.attributes.spree/product.name"
+      %th=t "activerecord.attributes.spree/product.prices"
       %th= t("activerecord.attributes.supplier.ngsj") + t("views.supplier.link")
       %th= t("activerecord.attributes.supplier.iiparts") + t("views.supplier.link")
       %th= t("activerecord.attributes.supplier.amazon") + t("views.supplier.link")
@@ -13,12 +14,23 @@
       %th= t("activerecord.attributes.supplier.yahoo") + t("views.supplier.link")
   %tbody
     %tr
-      %td= @spree_product.name
-      %td= link_to @spree_product.supplier.try(:ngsj), @spree_product.supplier.try(:ngsj), target: :blank
-      %td= link_to @spree_product.supplier.try(:iiparts), @spree_product.supplier.try(:iiparts), target: :blank
-      %td= link_to @spree_product.supplier.try(:amazon), @spree_product.supplier.try(:amazon), target: :blank
-      %td= link_to @spree_product.supplier.try(:rakuten), @spree_product.supplier.try(:rakuten), target: :blank
-      %td= link_to @spree_product.supplier.try(:yahoo), @spree_product.supplier.try(:yahoo), target: :blank
+      %td.left= @spree_product.name
+      %td.center= number_to_currency @spree_product.price.try(:selling_price)
+      %td.center
+        - if @spree_product.price.try(:ngsj)
+          = link_to number_to_currency(@spree_product.price.ngsj), @spree_product.supplier.ngsj,class: "btn btn-default", target: :blank
+      %td.center
+        - if @spree_product.price.try(:iiparts)
+          = link_to number_to_currency(@spree_product.price.iiparts), @spree_product.supplier.iiparts,class: "btn btn-default", target: :blank
+      %td.center
+        - if @spree_product.price.try(:amazon)
+          = link_to number_to_currency(@spree_product.price.amazon), @spree_product.supplier.amazon,class: "btn btn-default", target: :blank
+      %td.center
+        - if @spree_product.price.try(:rakuten)
+          = link_to number_to_currency(@spree_product.price.rakuten), @spree_product.supplier.rakuten,class: "btn btn-default", target: :blank
+      %td.center
+        - if @spree_product.price.try(:yahoo)
+          = link_to number_to_currency(@spree_product.price.yahoo), @spree_product.supplier.yahoo,class: "btn btn-default", target: :blank
 
 - if @spree_product.supplier
   = link_to t("links.edit"), edit_supplier_path(@spree_product.supplier), class: "btn btn-default"

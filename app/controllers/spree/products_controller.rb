@@ -5,6 +5,7 @@ class Spree::ProductsController < ApplicationController
   # GET /spree/products.json
   def index
     @spree_products = Spree::Product.page params[:page]
+    session[:previous_page] = request.original_url
   end
 
   # GET /spree/products/1

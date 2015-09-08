@@ -1,0 +1,15 @@
+= form_for @profit do |f|
+  - if @profit.errors.any?
+    #error_explanation
+      %h2= "#{pluralize(@profit.errors.count, "error")} prohibited this profit from being saved:"
+      %ul
+        - @profit.errors.full_messages.each do |msg|
+          %li= msg
+
+  .field
+    = f.label :percentage
+    （0から1までの小数で粗利を設定してください。）
+    = f.text_field :percentage, class: "form-control"
+  .actions
+    = f.submit t("links.save"), class: "btn btn-default"
+    = link_to t("links.back"), profits_path, class: "btn btn-default"

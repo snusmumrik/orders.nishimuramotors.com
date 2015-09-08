@@ -1,0 +1,21 @@
+%h1= t("activerecord.models.profit") + t("views.index")
+
+%table.table.table-default
+  %thead
+    %tr
+      %th=t "activerecord.attributes.profit.percentage"
+      %th
+      %th
+      %th
+
+  %tbody
+    - @profits.each do |profit|
+      %tr
+        %td.center= profit.percentage
+        %td.center= link_to t("links.edit"), edit_profit_path(profit), class: "btn btn-default"
+        %td.center= link_to t("links.destroy"), profit, :method => :delete, :data => { :confirm => t("messages.are_you_sure") }, class: "btn btn-default"
+
+%br
+
+- if @profits.blank?
+  = link_to t("links.new"), new_profit_path, class: "btn btn-default"

@@ -38,4 +38,8 @@ Rails.application.configure do
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
+
+  AWS_ACCESS_KEY_ID = "AKIAJG23JHIWAH6BQ5XA"
+  AWS_SECRET_ACCESS_KEY = "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"
+  ASSOCIATE_TAG = "snusmumrik0b-22"
 end
