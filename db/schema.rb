@@ -31,13 +31,13 @@ ActiveRecord::Schema.define(version: 20150908013612) do
   create_table "prices", force: :cascade do |t|
     t.integer  "spree_product_id", limit: 4
     t.integer  "selling_price",    limit: 4
-    t.integer  "ngsj",             limit: 4
-    t.integer  "iiparts",          limit: 4
-    t.integer  "amazon",           limit: 4
-    t.integer  "rakuten",          limit: 4
-    t.integer  "yahoo",            limit: 4
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
+    t.string   "ngsj",             limit: 255
+    t.string   "iiparts",          limit: 255
+    t.string   "amazon",           limit: 255
+    t.string   "rakuten",          limit: 255
+    t.string   "yahoo",            limit: 255
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
   end
 
   add_index "prices", ["spree_product_id"], name: "index_prices_on_spree_product_id", using: :btree
