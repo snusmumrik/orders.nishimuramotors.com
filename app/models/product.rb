@@ -4,51 +4,37 @@ require "csv"
 require "net/http"
 
 class Product < ActiveRecord::Base
-  def self.index_search(url = "http://nbsj.ocnk.net")
+  def self.search_index(url = "http://nbsj.ocnk.net")
     agent = Mechanize.new
     page = agent.get(url)
-    page.search("ul.subcategories").each do |ul|
-      ul.search("li").each do |li|
+
+    # page.search("ul.subcategories").each do |ul|
+    #   ul.search("li").each do |li|
+    #     product_list_page_link = li.at("a").attr("href")
+    #     p "PRODUCT LIST PAGE: #{product_list_page_link}"
+
+    #     self.product_search(product_list_page_link)
+    #   end
+    # end
+
+    page.search("li.parent_category").each do |li|
+      next unless li.at("div.parentcategory a")
+      parentcategory = li.at("div.parentcategory a").text
+      p parentcategory
+
+      li.search("ul.subcategories li").each do |li|
+        subcategories = li.at("a").text
+        p subcategories
         product_list_page_link = li.at("a").attr("href")
         p "PRODUCT LIST PAGE: #{product_list_page_link}"
 
-        self.product_search(product_list_page_link)
+        self.product_search(parentcategory, subcategories, product_list_page_link)
       end
-    end
-  end
-
-  def self.update_price
-    Spree::Product.all.each do |product|
-      price = Price.where(["spree_product_id = ?", product.id]).first
-      array = Array.new
-      array << price.ngsj unless price.ngsj.nil?
-      array << price.iiparts unless price.iiparts.nil?
-      array << price.amazon unless price.amazon.nil?
-      array << price.rakuten unless price.rakuten.nil?
-      array << price.yahoo unless price.yahoo.nil?
-      array.sort
-
-      low = array.first
-      high = array.last
-      percentage = Profit.last.try(:percentage) || 0.5
-
-      if !low.nil? && !high.nil?
-        product.price = low + (high - low) * percentage
-      elsif !low.nil?
-        product.price = low * 1.3
-      end
-
-      if array.size == 0
-        product.avilable_on = nil
-      end
-
-      p product.price.to_i
-      product.save
     end
   end
 
   private
-  def self.product_search(url, root= "http://nbsj.ocnk.net")
+  def self.product_search(parentcategory, subcategories, url, root= "http://nbsj.ocnk.net")
     agent = Mechanize.new
     product_list_page = agent.get(url)
 
@@ -86,9 +72,9 @@ class Product < ActiveRecord::Base
         description = ""
       end
 
-      p "IMAGE:#{image_url}, NAME:#{name}, MODEL NUMBER:#{model_number}, PRICE:#{price}, DESCRIPTION:#{description}, SOLD OUT:#{sold_out}"
+      p "PARENTCATEGORY: #{parentcategory}, SUBCATEGORIES: #{subcategories}, IMAGE:#{image_url}, NAME:#{name}, MODEL NUMBER:#{model_number}, PRICE:#{price}, DESCRIPTION:#{description}, SOLD OUT:#{sold_out}"
 
-      array = [name, model_number, description, price, image_url, sold_out]
+      array = [parentcategory, subcategories, name, model_number, description, price, image_url, sold_out]
       path = "public/products.csv"
 
       CSV.open(path, 'a') do |writer|
@@ -98,7 +84,7 @@ class Product < ActiveRecord::Base
 
     if next_page
       p "NEXT: #{next_page}"
-      self.product_search("#{root}/#{next_page}")
+      self.product_search(parentcategory, subcategories, "#{root}/#{next_page}")
     end
   end
 end

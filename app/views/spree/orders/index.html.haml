@@ -24,9 +24,10 @@
       %tr
         %td= spree_order.number
         %td
-          - spree_order.products.each do |p|
-            = p.name
-            <br>
+          %ol
+            - spree_order.products.each_with_index do |p, i|
+              %li= p.name
+              <br>
         %td
           = number_to_currency spree_order.item_total
           <br>
