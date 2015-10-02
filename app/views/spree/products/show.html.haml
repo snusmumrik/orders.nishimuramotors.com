@@ -7,33 +7,49 @@
     %tr
       %th=t "activerecord.attributes.spree/product.name"
       %th=t "activerecord.attributes.spree/product.prices"
-      %th= t("activerecord.attributes.supplier.ngsj") + t("views.supplier.link")
-      %th= t("activerecord.attributes.supplier.iiparts") + t("views.supplier.link")
-      %th= t("activerecord.attributes.supplier.amazon") + t("views.supplier.link")
-      %th= t("activerecord.attributes.supplier.rakuten") + t("views.supplier.link")
-      %th= t("activerecord.attributes.supplier.yahoo") + t("views.supplier.link")
+      %th=t "activerecord.attributes.supplier.ngsj"
+      %th=t "activerecord.attributes.supplier.iiparts"
+      %th=t "activerecord.attributes.supplier.amazon"
+      %th=t "activerecord.attributes.supplier.rakuten"
+      %th=t "activerecord.attributes.supplier.yahoo"
   %tbody
     %tr
       %td.left= @spree_product.name
       %td.center= number_to_currency @spree_product.price.try(:selling_price)
       %td.center
         - if @spree_product.price.try(:ngsj)
-          = link_to number_to_currency(@spree_product.price.ngsj), @spree_product.supplier.ngsj,class: "btn btn-default", target: :blank
+          - if @price.lowest_price == @spree_product.price.ngsj
+            = link_to number_to_currency(@spree_product.price.ngsj), @spree_product.supplier.ngsj, class: "btn btn-success", target: :blank
+          - else
+            = link_to number_to_currency(@spree_product.price.ngsj), @spree_product.supplier.ngsj, class: "btn btn-default", target: :blank
       %td.center
         - if @spree_product.price.try(:iiparts)
-          = link_to number_to_currency(@spree_product.price.iiparts), @spree_product.supplier.iiparts,class: "btn btn-default", target: :blank
+          - if @price.lowest_price == @spree_product.price.iiparts
+            = link_to number_to_currency(@spree_product.price.iiparts), @spree_product.supplier.iiparts, class: "btn btn-success", target: :blank
+          - else
+            = link_to number_to_currency(@spree_product.price.iiparts), @spree_product.supplier.iiparts, class: "btn btn-default", target: :blank
       %td.center
         - if @spree_product.price.try(:amazon)
-          = link_to number_to_currency(@spree_product.price.amazon), @spree_product.supplier.amazon,class: "btn btn-default", target: :blank
+          - if @price.lowest_price == @spree_product.price.amazon
+            = link_to number_to_currency(@spree_product.price.amazon), @spree_product.supplier.amazon, class: "btn btn-success", target: :blank
+          - else
+            = link_to number_to_currency(@spree_product.price.amazon), @spree_product.supplier.amazon, class: "btn btn-default", target: :blank
       %td.center
         - if @spree_product.price.try(:rakuten)
-          = link_to number_to_currency(@spree_product.price.rakuten), @spree_product.supplier.rakuten,class: "btn btn-default", target: :blank
+          - if @price.lowest_price == @spree_product.price.rakuten
+            = link_to number_to_currency(@spree_product.price.rakuten), Supplier.get_rakuten_link(@spree_product.supplier.rakuten), class: "btn btn-success", target: :blank
+          - else
+            = link_to number_to_currency(@spree_product.price.rakuten), Supplier.get_rakuten_link(@spree_product.supplier.rakuten), class: "btn btn-default", target: :blank
       %td.center
         - if @spree_product.price.try(:yahoo)
-          = link_to number_to_currency(@spree_product.price.yahoo), @spree_product.supplier.yahoo,class: "btn btn-default", target: :blank
+          - if @price.lowest_price == @spree_product.price.yahoo
+            = link_to number_to_currency(@spree_product.price.yahoo), Supplier.get_yahoo_link(@spree_product.supplier.yahoo), class: "btn btn-success", target: :blank
+          - else
+            = link_to number_to_currency(@spree_product.price.yahoo), Supplier.get_yahoo_link(@spree_product.supplier.yahoo), class: "btn btn-default", target: :blank
 
 - if @spree_product.supplier
   = link_to t("links.edit"), edit_supplier_path(@spree_product.supplier), class: "btn btn-default"
 - else
   = link_to t("links.edit"), "#{new_supplier_path}/#{@spree_product.id}", class: "btn btn-default"
+
 = link_to t("links.back"), spree_products_path, class: "btn btn-default"

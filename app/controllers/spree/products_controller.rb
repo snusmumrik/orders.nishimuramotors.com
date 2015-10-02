@@ -5,12 +5,20 @@ class Spree::ProductsController < ApplicationController
   # GET /spree/products.json
   def index
     @spree_products = Spree::Product.page params[:page]
+
+    @price_hash = Hash.new
+    prices = Price.where(["spree_product_id in (?)", @spree_products.pluck(:id)])
+    prices.each do |p|
+      @price_hash.store(p.id, p.lowest_price)
+    end
+
     session[:previous_page] = request.original_url
   end
 
   # GET /spree/products/1
   # GET /spree/products/1.json
   def show
+    @price = Price.where(["spree_product_id = ?", @spree_product.id]).first
   end
 
   # GET /spree/products/new

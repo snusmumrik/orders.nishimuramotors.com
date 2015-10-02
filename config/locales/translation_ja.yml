@@ -11,6 +11,7 @@ ja:
       supplier: 仕入先
       user: user  #g
       profit: 粗利設定
+      purchase: 仕入
 
     attributes:
       spree/address:
@@ -38,10 +39,10 @@ ja:
         inventory_units: inventory_units  #g
         order: :activerecord.models.order  #g
         pre_tax_amount: pre_tax_amount  #g
-        price: price  #g
+        price: 販売価格
         product: :activerecord.models.product  #g
         promo_total: promo_total  #g
-        quantity: quantity  #g
+        quantity: 数量
         tax_category: :activerecord.models.tax_category  #g
         variant: :activerecord.models.variant  #g
 
@@ -89,6 +90,9 @@ ja:
         store: :activerecord.models.store  #g
         total: 合計
         variants: variants  #g
+
+      spree/payment:
+        state: 支払状況
 
       spree/product:
         available_on: available_on  #g
@@ -154,8 +158,10 @@ ja:
       price:
         amazon: amazon  #g
         iiparts: NBS
+        lowest_price: 最低仕入価格
         ngsj: バイクパーツセンター
         rakuten: 楽天
+        selling_price: 販売価格
         spree_product: :activerecord.models.spree_product
         yahoo: ヤフー
 
@@ -193,6 +199,8 @@ ja:
     new: 新規作成
     save: 保存
     show: 詳細
+    price:
+      update: 価格更新
 
     user:
       sign_in: サインイン
@@ -224,5 +232,3 @@ ja:
       next: "次 &rsaquo;"
       truncate: "..."
 
-    supplier:
-      link: リンク

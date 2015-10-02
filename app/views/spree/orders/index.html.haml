@@ -16,6 +16,7 @@
       %th=t "activerecord.attributes.spree/order.bill_address"
       %th=t "activerecord.attributes.spree/order.ship_address"
       %th=t "activerecord.attributes.spree/order.state"
+      %th=t "activerecord.attributes.spree/payment.state"
       %th=t "activerecord.attributes.spree/order.shipment_state"
       %th
 
@@ -56,6 +57,7 @@
           <br>
           = spree_order.ship_address.phone
         %td= spree_order.state
+        %td= @payments[spree_order.id]
         %td= spree_order.shipment_state
         %td
           %ul

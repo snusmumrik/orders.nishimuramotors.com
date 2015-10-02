@@ -5,6 +5,11 @@ class Spree::OrdersController < ApplicationController
   # GET /spree/orders.json
   def index
     @spree_orders = Spree::Order.order("created_at DESC").page params[:page]
+    payment_array = ActiveRecord::Base.connection.select_all("select * from spree_payments where order_id in (#{@spree_orders.pluck(:id).join(',')})  group by order_id").to_hash
+    @payments = Hash.new
+    payment_array.each do |p|
+      @payments.store(p["id"], p["state"])
+    end
   end
 
   # GET /spree/orders/1
