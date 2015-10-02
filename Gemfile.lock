@@ -125,7 +125,7 @@ GEM
     multi_json (1.11.2)
     multi_xml (0.5.5)
     multipart-post (2.0.0)
-    mysql2 (0.4.1)
+    mysql2 (0.3.19)
     net-http-digest_auth (1.4)
     net-http-persistent (2.9.4)
     nokogiri (1.6.6.2)
@@ -230,7 +230,7 @@ DEPENDENCIES
   jquery-rails
   kaminari
   mechanize
-  mysql2
+  mysql2 (~> 0.3.18)
   paranoia
   rails (= 4.2.4)
   sass-rails (~> 5.0)
