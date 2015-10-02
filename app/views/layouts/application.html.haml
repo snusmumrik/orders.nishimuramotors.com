@@ -57,7 +57,7 @@
             -#       %a{:href => "#"} One more separated link
           %ul.nav.navbar-nav.navbar-right
             - if user_signed_in?
-              %li= link_to current_user.email, edit_user_registration_path(current_user)
+              -# %li= link_to current_user.email, edit_user_registration_path(current_user)
               %li= link_to(t("links.user.sign_out"), destroy_user_session_path, :method => :delete, data: { confirm: t("messages.are_you_sure") })
             - else
               %li= link_to t("links.user.sign_in"), new_user_session_path
