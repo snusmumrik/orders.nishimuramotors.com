@@ -63,7 +63,7 @@ ja:
         guest_token: guest_token  #g
         included_tax_total: included_tax_total  #g
         inventory_units: inventory_units  #g
-        item_total: 商品代金
+        item_total: 商品代
         last_ip_address: last_ip_address  #g
         line_item_adjustments: line_item_adjustments  #g
         line_items: line_items  #g
@@ -80,11 +80,11 @@ ja:
         return_authorizations: return_authorizations  #g
         ship_address: 発送先
         shipment_adjustments: shipment_adjustments  #g
-        shipment_state: 発送状態
+        shipment_state: 発送状況
         shipment_total: 送料
         shipments: shipments  #g
         special_instructions: special_instructions  #g
-        state: 注文状態
+        state: 注文状況
         state_changes: state_changes  #g
         state_lock_version: state_lock_version  #g
         store: :activerecord.models.store  #g
@@ -228,6 +228,12 @@ ja:
     index: 一覧
     new: 新規作成
     show: 詳細
+
+    spree/order:
+      completed: 完了
+      pending: 保留
+      ready: 発送可能
+      shipped: 発送完了
 
     pagination:
       first: "&laquo; 最初"

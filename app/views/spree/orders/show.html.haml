@@ -7,9 +7,11 @@
   %tr
     %th=t "activerecord.attributes.spree/product.name"
     %td
-      - @spree_order.products.each do |p|
-        = p.name
-        <br>
+      %ol
+        - @spree_order.products.each do |p|
+          %li
+            = p.name
+            %button.btn.btn-default.btn-sm= "x #{@line_items[p.id][:quantity]}"
   %tr
     %th
       =t "activerecord.attributes.spree/order.item_total"
