@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :purchases
   resources :profits
   devise_for :users
   resources :suppliers
@@ -21,7 +22,9 @@ Rails.application.routes.draw do
 
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
-    get 'suppliers/new/:id' => 'suppliers#new'
+  get 'suppliers/new/:id' => 'suppliers#new'
+  get 'spree/products/:id/update_price' => 'spree/products#update_price'
+  get 'spree/products/update_price/all' => 'spree/products#update_prices'
 
   # Example of named route that can be invoked with purchase_url(id: product.id)
   #   get 'products/:id/purchase' => 'catalog#purchase', as: :purchase

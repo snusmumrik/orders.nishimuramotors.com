@@ -12,7 +12,7 @@ class Price < ActiveRecord::Base
 
   def self.get_price(product)
     name = product.name.tr('０-９ａ-ｚＡ-Ｚ', '0-9a-zA-Z')
-    p "NAME: #{name}"
+    puts "NAME: #{name}"
 
     /([0-9a-zA-Z-]+)/ =~ name
     if $1
@@ -20,7 +20,7 @@ class Price < ActiveRecord::Base
     else
       keyword = name
     end
-    p "KEYWORD: #{keyword}"
+    puts "KEYWORD: #{keyword}"
 
     search_urls = ["http://nbsj.ocnk.net/product-list?keyword=#{keyword}&order=asc",
                    "http://11parts.shop-pro.jp/?mode=srh&cid=&keyword=#{keyword}&sort=p",
@@ -46,23 +46,29 @@ class Price < ActiveRecord::Base
 
     agent = Mechanize.new
     search_urls.each_with_index do |url, i|
-      p "#{i}: #{url}"
+      puts "#{i}: #{url}"
 
       begin
         page = agent.get(url) unless i == 2
+
         case i
         when 0
           if li = page.at("ul.layout160 li")
             detail_url = page.at("div.item_data a").attr("href")
             detail_page = agent.get(detail_url)
             p = detail_page.at("#pricech").text.gsub(/(円|,)/, "")
-            p p
+            puts "PRICE: #{p}"
 
             # p = li.at("p.selling_price span").text.gsub(/(円|,)/, "")
-            # p p
+            # puts "PRICE: #{p}"
 
             price.ngsj = p
-            supplier.ngsj = url
+            supplier.ngsj = detail_url
+          else
+            p = page.at("#pricech").text.gsub(/(円|,)/, "")
+            puts "PRICE: #{p}"
+
+            price.ngsj = p
           end
         when 1
           if div = page.at(".cat_list_003")
@@ -75,14 +81,24 @@ class Price < ActiveRecord::Base
 
             /^([0-9,]+)/ =~ text
             p = $1.gsub(",", "")
-            p p
+            puts "PRICE: #{p}"
 
             price.iiparts = p
-            supplier.iiparts = url
+            host = "http://11parts.shop-pro.jp/"
+            supplier.iiparts = host + detail_url
+          else
+            trs = page.search("table.table1 tr")
+            text = trs[1].at("td.CELL_2").text
+
+            /^([0-9,]+)/ =~ text
+            p = $1.gsub(",", "")
+            puts "PRICE: #{p}"
+
+            price.iiparts = p
           end
         when 2
           result = self.item_search(keyword)
-          p result[:price]
+          # puts result[:price]
           price.amazon = result[:price]
           supplier.amazon = result[:url]
         when 3
@@ -97,17 +113,25 @@ class Price < ActiveRecord::Base
               trs = table.search("tr")
               tds = trs[1].search("td")
               p = tds[1].at(".price2").text.gsub(/(±ß\n|,)/, "")
-              p p
+              puts "PRICE: #{p}"
 
               # td = tr.search("td")[4]
-              # # p td
+              # # puts td
 
               # p = td.at("font").text.gsub(/( 円|,)/, "")
-              # p p
+              # puts "PRICE: #{p}"
 
               price.rakuten = p
-              supplier.rakuten = url
+              supplier.rakuten = detail_url
             end
+          else
+            table = page.at("#rakutenLimitedId_cart")
+            trs = table.search("tr")
+            tds = trs[1].search("td")
+            p = tds[1].at(".price2").text.gsub(/(±ß\n|,)/, "")
+            puts "PRICE: #{p}"
+
+            price.rakuten = p
           end
         when 4
           if li = page.at("ul.ptItem li")
@@ -115,13 +139,18 @@ class Price < ActiveRecord::Base
 
             detail_page = agent.get(detail_url)
             p = detail_page.at(".elPrice span").text.gsub(/,/, "")
-            p p
+            puts "PRICE: #{p}"
 
             # p = li.at("b.elPrice").text.gsub(/(±ß|,)/, "")
-            # p p
+            # puts "PRICE: #{p}"
 
             price.yahoo = p
-            supplier.yahoo = url
+            supplier.yahoo = detail_url
+          else
+            p = page.at(".elPrice span").text.gsub(/,/, "")
+            puts "PRICE: #{p}"
+
+            price.yahoo = p
           end
         end
       rescue
@@ -134,7 +163,7 @@ class Price < ActiveRecord::Base
     array << price.amazon unless price.amazon.nil?
     array << price.rakuten unless price.rakuten.nil?
     array << price.yahoo unless price.yahoo.nil?
-    array.sort
+    array.sort!
     p array
 
     low = array.first
@@ -143,19 +172,27 @@ class Price < ActiveRecord::Base
 
     if !low.nil? && !high.nil?
       price.selling_price = low + (high - low) * percentage
+      price.lowest_price = low
     elsif !low.nil?
-      price.selling_price = low * 1.3
+      price.selling_price = low * (1 + percentage)
+      price.lowest_price = low
     end
 
-    # p price
-    # p supplier
+    # puts price
+    # puts supplier
 
     price.save
     supplier.save
     ActiveRecord::Base.connection.update("update spree_prices set amount = #{price.selling_price} where variant_id = #{product.id}")
   end
 
-  def self.refresh_prices(product)
+  def self.refresh_prices
+    Spree::Product.all.each do |p|
+      Price.refresh_price(p)
+    end
+  end
+
+  def self.refresh_price(product)
     price = Price.where(["spree_product_id = ?", product.id]).first
     array = Array.new
     array << price.ngsj unless price.ngsj.nil?
@@ -163,24 +200,28 @@ class Price < ActiveRecord::Base
     array << price.amazon unless price.amazon.nil?
     array << price.rakuten unless price.rakuten.nil?
     array << price.yahoo unless price.yahoo.nil?
-    array.sort
+    array.sort!
+    puts array
 
     low = array.first
     high = array.last
     percentage = Profit.last.try(:percentage) || 0.5
 
     if !low.nil? && !high.nil?
-      product.price = low + (high - low) * percentage
+      new_price = (low + (high - low) * percentage).round(-1)
+      lowest_price = low
     elsif !low.nil?
-      product.price = low * 1.3
+      new_price = (low * (1 + percentage)).round(-1)
+      lowest_price = low
     end
+    puts new_price
+    price.update_attributes({selling_price: new_price, lowest_price: lowest_price })
 
     if array.size == 0
       product.avilable_on = nil
     end
 
-    p product.price.to_i
-    product.save
+    ActiveRecord::Base.connection.update("update spree_prices set amount = #{new_price} where variant_id = #{product.id}")
   end
 
   private

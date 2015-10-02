@@ -1,5 +1,5 @@
 class Spree::ProductsController < ApplicationController
-  before_action :set_spree_product, only: [:show, :edit, :update, :destroy]
+  before_action :set_spree_product, only: [:show, :edit, :update, :destroy, :update_price]
 
   # GET /spree/products
   # GET /spree/products.json
@@ -68,6 +68,18 @@ class Spree::ProductsController < ApplicationController
       format.html { redirect_to spree_products_url, notice: 'Product was successfully destroyed.' }
       format.json { head :no_content }
     end
+  end
+
+  def update_prices
+    Spree::Product.all.each do |spree_product|
+      Price.get_price(spree_product)
+    end
+    redirect_to spree_products_path
+  end
+
+  def update_price
+    Price.get_price(@spree_product)
+    redirect_to @spree_product
   end
 
   private

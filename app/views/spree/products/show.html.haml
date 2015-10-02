@@ -52,4 +52,5 @@
 - else
   = link_to t("links.edit"), "#{new_supplier_path}/#{@spree_product.id}", class: "btn btn-default"
 
+= link_to t("links.price.update"), "#{spree_product_path(@spree_product)}/update_price", :method => :get, :data => { :confirm => t("messages.are_you_sure") }, class: "btn btn-default"
 = link_to t("links.back"), spree_products_path, class: "btn btn-default"
