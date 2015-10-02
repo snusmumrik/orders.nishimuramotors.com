@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 class Spree::OrdersController < ApplicationController
   before_action :set_spree_order, only: [:show, :edit, :update, :destroy]
 
@@ -15,6 +16,18 @@ class Spree::OrdersController < ApplicationController
   # GET /spree/orders/1
   # GET /spree/orders/1.json
   def show
+    respond_to do |format|
+      format.html # show.html.erb
+      format.pdf do
+        pdf = OrderPDF.new(@spree_order)
+        pdf.font "vendor/fonts/ipaexm.ttf"
+
+        send_data pdf.render,
+          filename:    "#{@spree_order.id}.pdf",
+          type:        "application/pdf",
+          disposition: "inline"
+      end
+    end
   end
 
   # GET /spree/orders/new

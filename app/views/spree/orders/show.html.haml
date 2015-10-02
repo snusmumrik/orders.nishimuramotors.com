@@ -58,4 +58,5 @@
     %td= @spree_order.shipment_state
 
 -# = link_to t("links.edit"), edit_spree_order_path(@spree_order), class: "btn btn-default"
+= link_to t("links.order.pdf"), spree_order_path(@spree_order, format: "pdf"), class: "btn btn-default"
 = link_to t("links.back"), :back, class: "btn btn-default"

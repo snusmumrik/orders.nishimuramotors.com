@@ -199,6 +199,10 @@ ja:
     new: 新規作成
     save: 保存
     show: 詳細
+
+    order:
+      pdf: 納品書
+
     price:
       update: 価格更新
 
