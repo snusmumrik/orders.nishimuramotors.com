@@ -6,44 +6,46 @@ class PurchasesController < ApplicationController
   def index
     @spree_orders = Spree::Order.where(["shipment_state != ?", "shipped"]).order("created_at DESC").page params[:page]
 
-    payment_array = ActiveRecord::Base.connection.select_all("select * from spree_payments where order_id in (#{@spree_orders.pluck(:id).join(',')})").to_hash
-    @payments = Hash.new
-    payment_array.each do |p|
-      @payments.store(p["order_id"], p["state"])
-    end
-
-    line_items_array = ActiveRecord::Base.connection.select_all("select * from spree_line_items left join spree_variants on spree_line_items.variant_id = spree_variants.id where order_id in (#{@spree_orders.pluck(:id).join(',')})").to_hash
-
-    product_array = Array.new
-    @quantity_hash = Hash.new {|hash, key| hash[key] = 0}
-
-    line_items_array.each do |l|
-      product_array << l["product_id"]
-      @quantity_hash.store(l["product_id"], @quantity_hash[l["product_id"]] += l["quantity"].to_i)
-    end
-
-    @spree_products = Spree::Product.where(["id in (?)", product_array.sort.uniq])
-
-    @supplier_hash = Hash.new
-    # suppliers = Supplier.where(["spree_product_id in (?)", product_array.sort.uniq])
-    @spree_products.each do |spree_product|
-      supplier = Supplier.where(["spree_product_id = ?", spree_product.id]).first
-      if spree_product.price.lowest_price == spree_product.price.ngsj
-        hash = {name: t("activerecord.attributes.supplier.ngsj"), url: supplier.ngsj}
-        @supplier_hash.store(spree_product.id, hash)
-      elsif spree_product.price.lowest_price == spree_product.price.iiparts
-        hash = {name: t("activerecord.attributes.supplier.iiparts"), url: supplier.iiparts}
-        @supplier_hash.store(spree_product.id, hash)
-      elsif spree_product.price.lowest_price == spree_product.price.amazon
-        hash = {name: t("activerecord.attributes.supplier.amazon"), url: supplier.amazon}
-        @supplier_hash.store(spree_product.id, hash)
-      elsif spree_product.price.lowest_price == spree_product.price.rakuten
-        hash = {name: t("activerecord.attributes.supplier.rakuten"), url: Supplier.get_rakuten_link(supplier.rakuten)}
-        @supplier_hash.store(spree_product.id, hash)
-      elsif spree_product.price.lowest_price == spree_product.price.yahoo
-        hash = {name: t("activerecord.attributes.supplier.yahoo"), url: Supplier.get_yahoo_link(supplier.yahoo)}
-        @supplier_hash.store(spree_product.id, hash)
+    begin
+      payment_array = ActiveRecord::Base.connection.select_all("select * from spree_payments where order_id in (#{@spree_orders.pluck(:id).join(',')})").to_hash
+      @payments = Hash.new
+      payment_array.each do |p|
+        @payments.store(p["order_id"], p["state"])
       end
+
+      line_items_array = ActiveRecord::Base.connection.select_all("select * from spree_line_items left join spree_variants on spree_line_items.variant_id = spree_variants.id where order_id in (#{@spree_orders.pluck(:id).join(',')})").to_hash
+
+      product_array = Array.new
+      @quantity_hash = Hash.new {|hash, key| hash[key] = 0}
+
+      line_items_array.each do |l|
+        product_array << l["product_id"]
+        @quantity_hash.store(l["product_id"], @quantity_hash[l["product_id"]] += l["quantity"].to_i)
+      end
+      @spree_products = Spree::Product.where(["id in (?)", product_array.sort.uniq])
+
+      @supplier_hash = Hash.new
+      # suppliers = Supplier.where(["spree_product_id in (?)", product_array.sort.uniq])
+      @spree_products.each do |spree_product|
+        supplier = Supplier.where(["spree_product_id = ?", spree_product.id]).first
+        if spree_product.price.lowest_price == spree_product.price.ngsj
+          hash = {name: t("activerecord.attributes.supplier.ngsj"), url: supplier.ngsj}
+          @supplier_hash.store(spree_product.id, hash)
+        elsif spree_product.price.lowest_price == spree_product.price.iiparts
+          hash = {name: t("activerecord.attributes.supplier.iiparts"), url: supplier.iiparts}
+          @supplier_hash.store(spree_product.id, hash)
+        elsif spree_product.price.lowest_price == spree_product.price.amazon
+          hash = {name: t("activerecord.attributes.supplier.amazon"), url: supplier.amazon}
+          @supplier_hash.store(spree_product.id, hash)
+        elsif spree_product.price.lowest_price == spree_product.price.rakuten
+          hash = {name: t("activerecord.attributes.supplier.rakuten"), url: Supplier.get_rakuten_link(supplier.rakuten)}
+          @supplier_hash.store(spree_product.id, hash)
+        elsif spree_product.price.lowest_price == spree_product.price.yahoo
+          hash = {name: t("activerecord.attributes.supplier.yahoo"), url: Supplier.get_yahoo_link(supplier.yahoo)}
+          @supplier_hash.store(spree_product.id, hash)
+        end
+      end
+    rescue
     end
   end
 

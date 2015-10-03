@@ -6,19 +6,22 @@ class Spree::OrdersController < ApplicationController
   # GET /spree/orders.json
   def index
     @spree_orders = Spree::Order.order("created_at DESC").page params[:page]
-    payment_array = ActiveRecord::Base.connection.select_all("select * from spree_payments where order_id in (#{@spree_orders.pluck(:id).join(',')})").to_hash
-    @payments = Hash.new
-    payment_array.each do |p|
-      @payments.store(p["order_id"], p["state"])
-    end
-
-    @line_items = Hash.new
-    @spree_orders.each do |spree_order|
-      hash = Hash.new
-      spree_order.line_items.each do |item|
-        hash.store(item.variant_id, {quantity: item.quantity, price: item.price})
+    begin
+      payment_array = ActiveRecord::Base.connection.select_all("select * from spree_payments where order_id in (#{@spree_orders.pluck(:id).join(',')})").to_hash
+      @payments = Hash.new
+      payment_array.each do |p|
+        @payments.store(p["order_id"], p["state"])
       end
-      @line_items.store(spree_order.id, hash)
+
+      @line_items = Hash.new
+      @spree_orders.each do |spree_order|
+        hash = Hash.new
+        spree_order.line_items.each do |item|
+          hash.store(item.variant_id, {quantity: item.quantity, price: item.price})
+        end
+        @line_items.store(spree_order.id, hash)
+      end
+    rescue
     end
   end
 
