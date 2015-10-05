@@ -103,14 +103,35 @@ class PurchasesController < ApplicationController
     end
   end
 
-  private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_purchase
-      @purchase = Purchase.find(params[:id])
+  def update_prices
+    @spree_orders = Spree::Order.where(["shipment_state != ?", "shipped"]).order("created_at DESC").page params[:page]
+
+    begin
+      line_items_array = ActiveRecord::Base.connection.select_all("select * from spree_line_items left join spree_variants on spree_line_items.variant_id = spree_variants.id where order_id in (#{@spree_orders.pluck(:id).join(',')})").to_hash
+
+      product_array = Array.new
+
+      line_items_array.each do |l|
+        product_array << l["product_id"]
+      end
+      @spree_products = Spree::Product.where(["id in (?)", product_array.sort.uniq])
+    rescue
     end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def purchase_params
-      params[:purchase]
+    @spree_products.each do |spree_product|
+      Price.get_price(spree_product)
     end
+    redirect_to purchases_path
+  end
+
+  private
+  # Use callbacks to share common setup or constraints between actions.
+  def set_purchase
+    @purchase = Purchase.find(params[:id])
+  end
+
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def purchase_params
+    params[:purchase]
+  end
 end

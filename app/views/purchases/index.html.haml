@@ -1,5 +1,7 @@
 %h1= t("activerecord.models.purchase") + t("views.index")
 
+.right= link_to t("links.price.update"), spree_purchases_update_price_path, :method => :get, :data => { :confirm => t("messages.are_you_sure") }, class: "btn btn-default"
+
 = paginate @spree_orders
 
 %table.table.table-default
