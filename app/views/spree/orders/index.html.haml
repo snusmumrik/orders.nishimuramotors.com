@@ -58,7 +58,9 @@
           - else
             %button.btn.btn-default= spree_order.state
         %td
-          - if @payments[spree_order.id] == "completed"
+          - if @payments[spree_order.id] == "checkout"
+            %button.btn.btn-default= t("views.spree/order.checkout")
+          - elsif @payments[spree_order.id] == "completed"
             %button.btn.btn-success= t("views.spree/order.completed")
           - elsif @payments[spree_order.id] == "pending"
             %button.btn.btn-warning= t("views.spree/order.pending")
