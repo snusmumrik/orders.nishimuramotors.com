@@ -31,27 +31,29 @@
   %tr
     %th=t "activerecord.attributes.spree/order.bill_address"
     %td
-      = @spree_order.bill_address.zipcode
-      <br>
-      = "#{@spree_order.bill_address.state.name}#{@spree_order.bill_address.city}#{@spree_order.bill_address.address1}"
-      <br>
-      = @spree_order.bill_address.address2
-      <br>
-      = "#{@spree_order.bill_address.lastname} #{@spree_order.bill_address.firstname}"
-      <br>
-      = @spree_order.bill_address.phone
+      - if @spree_order.bill_address
+        = @spree_order.bill_address.zipcode
+        <br>
+        = "#{@spree_order.bill_address.state.name}#{@spree_order.bill_address.city}#{@spree_order.bill_address.address1}"
+        <br>
+        = @spree_order.bill_address.address2
+        <br>
+        = "#{@spree_order.bill_address.lastname} #{@spree_order.bill_address.firstname}"
+        <br>
+        = @spree_order.bill_address.phone
   %tr
     %th=t "activerecord.attributes.spree/order.ship_address"
     %td
-      = @spree_order.ship_address.zipcode
-      <br>
-      = "#{@spree_order.ship_address.state.name}#{@spree_order.ship_address.city}#{@spree_order.ship_address.address1}"
-      <br>
-      = @spree_order.ship_address.address2
-      <br>
-      = "#{@spree_order.ship_address.lastname} #{@spree_order.ship_address.firstname}"
-      <br>
-      = @spree_order.ship_address.phone
+      - if @spree_order.ship_address
+        = @spree_order.ship_address.zipcode
+        <br>
+        = "#{@spree_order.ship_address.state.name}#{@spree_order.ship_address.city}#{@spree_order.ship_address.address1}"
+        <br>
+        = @spree_order.ship_address.address2
+        <br>
+        = "#{@spree_order.ship_address.lastname} #{@spree_order.ship_address.firstname}"
+        <br>
+        = @spree_order.ship_address.phone
   %tr
     %th=t "activerecord.attributes.spree/order.state"
     %td= @spree_order.state
