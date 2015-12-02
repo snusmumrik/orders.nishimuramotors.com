@@ -230,6 +230,7 @@ ja:
     show: 詳細
 
     spree/order:
+      address: 未購入
       checkout: 未確認
       completed: 完了
       pending: 保留

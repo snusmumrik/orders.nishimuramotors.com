@@ -13,7 +13,7 @@ class PurchasesController < ApplicationController
         @payments.store(p["order_id"], p["state"])
       end
 
-      line_items_array = ActiveRecord::Base.connection.select_all("select * from spree_line_items left join spree_variants on spree_line_items.variant_id = spree_variants.id where order_id in (#{@spree_orders.pluck(:id).join(',')})").to_hash
+      line_items_array = ActiveRecord::Base.connection.select_all("select * from spree_payments left join spree_line_items on spree_payments.order_id = spree_line_items.order_id left join spree_variants on spree_line_items.variant_id = spree_variants.id where spree_payments.state = 'completed' and spree_line_items.order_id in (#{@spree_orders.pluck(:id).join(',')}) and spree_payments.state = 'completed'").to_hash
 
       product_array = Array.new
       @quantity_hash = Hash.new {|hash, key| hash[key] = 0}
