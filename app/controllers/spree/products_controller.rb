@@ -4,7 +4,7 @@ class Spree::ProductsController < ApplicationController
   # GET /spree/products
   # GET /spree/products.json
   def index
-    @spree_products = Spree::Product.page params[:page]
+    @spree_products = Spree::Product.includes(:price, :supplier).page params[:page]
 
     @price_hash = Hash.new
     prices = Price.where(["spree_product_id in (?)", @spree_products.pluck(:id)])

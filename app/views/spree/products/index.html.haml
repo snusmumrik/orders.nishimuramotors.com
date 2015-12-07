@@ -50,9 +50,9 @@
         %td.center
           - if spree_product.price.try(:yahoo)
             - if @price_hash[spree_product.id] == spree_product.price.try(:yahoo)
-              = link_to number_to_currency(spree_product.price.try(:yahoo)), Supplier.get_yahoo_link(spree_product.supplier.try(:yahoo)), class: "btn btn-success", target: :blank
+              = link_to number_to_currency(spree_product.price.try(:yahoo)), spree_product.supplier.try(:yahoo), class: "btn btn-success", target: :blank
             - else
-              = link_to number_to_currency(spree_product.price.try(:yahoo)), Supplier.get_yahoo_link(spree_product.supplier.try(:yahoo)), class: "btn btn-default", target: :blank
+              = link_to number_to_currency(spree_product.price.try(:yahoo)), spree_product.supplier.try(:yahoo), class: "btn btn-default", target: :blank
         %td.center
           - if spree_product.supplier
             = link_to t("links.edit"), edit_supplier_path(spree_product.supplier), class: "btn btn-default"

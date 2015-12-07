@@ -3,12 +3,7 @@ class Supplier < ActiveRecord::Base
 
   def self.get_rakuten_link(url)
     affiliate_link = "http://hb.afl.rakuten.co.jp/hgc/04ca51e6.8117788a.10c41bdd.777df5cb/?pc=#{url}%3fscid%3daf_link_urltxt&amp;m=http%3a%2f%2fm.rakuten.co.jp"
-    Supplier.shorten_url(affiliate_link)
-  end
-
-  def self.get_yahoo_link(url)
-    affiliate_link = "http://ck.jp.ap.valuecommerce.com/servlet/referral?sid=2570500&pid=879277068&vc_url=#{url}"
-    Supplier.shorten_url(affiliate_link)
+    # Supplier.shorten_url(affiliate_link)
   end
 
   def self.shorten_url(url)

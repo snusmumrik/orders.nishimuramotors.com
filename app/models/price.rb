@@ -122,7 +122,7 @@ class Price < ActiveRecord::Base
               # puts "PRICE: #{p}"
 
               price.rakuten = p
-              supplier.rakuten = detail_url
+              supplier.rakuten = Supplier.get_rakuten_link(detail_url)
             end
           else
             table = page.at("#rakutenLimitedId_cart")
