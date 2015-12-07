@@ -44,9 +44,9 @@
         %td.center
           - if spree_product.price.try(:rakuten)
             - if @price_hash[spree_product.id] == spree_product.price.try(:rakuten)
-              = link_to number_to_currency(spree_product.price.try(:rakuten)), Supplier.get_rakuten_link(spree_product.supplier.try(:rakuten)) , class: "btn btn-success", target: :blank
+              = link_to number_to_currency(spree_product.price.try(:rakuten)), spree_product.supplier.try(:rakuten) , class: "btn btn-success", target: :blank
             - else
-              = link_to number_to_currency(spree_product.price.try(:rakuten)), Supplier.get_rakuten_link(spree_product.supplier.try(:rakuten)) , class: "btn btn-default", target: :blank
+              = link_to number_to_currency(spree_product.price.try(:rakuten)), spree_product.supplier.try(:rakuten) , class: "btn btn-default", target: :blank
         %td.center
           - if spree_product.price.try(:yahoo)
             - if @price_hash[spree_product.id] == spree_product.price.try(:yahoo)
