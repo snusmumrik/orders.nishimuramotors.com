@@ -51,7 +51,7 @@ class Spree::ProductsController < ApplicationController
   def update
     respond_to do |format|
       if @spree_product.update(spree_product_params)
-        format.html { redirect_to @spree_product, notice: 'Product was successfully updated.' }
+        format.html { redirect_to request.referrer, notice: t("activerecord.models.spree/product") + t("messages.updated") }
         format.json { render :show, status: :ok, location: @spree_product }
       else
         format.html { render :edit }
@@ -79,7 +79,7 @@ class Spree::ProductsController < ApplicationController
 
   def update_price
     Price.get_price(@spree_product)
-    redirect_to @spree_product
+    redirect_to request.referrer
   end
 
   private
@@ -90,6 +90,6 @@ class Spree::ProductsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def spree_product_params
-      params[:spree_product]
+      params[:spree_product].permit(:available_on)
     end
 end

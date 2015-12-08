@@ -205,6 +205,11 @@ ja:
 
     price:
       update: 価格更新
+      update_all: 価格一括更新
+
+    product:
+      list: 掲載
+      unlist: 掲載停止
 
     user:
       sign_in: サインイン
