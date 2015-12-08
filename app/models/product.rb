@@ -93,7 +93,7 @@ class Product < ActiveRecord::Base
       detail_page = agent.get(detail_link)
 
       image_url = detail_page.at(".global_photo a").attr("href")
-      name = detail_page.at(".goods_name").text
+      name = detail_page.at(".goods_name").text.strip
       model_number = detail_page.at(".model_number_value").text
       price = detail_page.at(".selling_price .figure").text
       price = price.sub("円", "") if price
