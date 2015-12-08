@@ -37,15 +37,15 @@
       %td.center
         - if @spree_product.price.try(:rakuten)
           - if @price.lowest_price == @spree_product.price.rakuten
-            = link_to number_to_currency(@spree_product.price.rakuten), Supplier.get_rakuten_link(@spree_product.supplier.rakuten), class: "btn btn-success", target: :blank
+            = link_to number_to_currency(@spree_product.price.rakuten), @spree_product.supplier.rakuten, class: "btn btn-success", target: :blank
           - else
-            = link_to number_to_currency(@spree_product.price.rakuten), Supplier.get_rakuten_link(@spree_product.supplier.rakuten), class: "btn btn-default", target: :blank
+            = link_to number_to_currency(@spree_product.price.rakuten), @spree_product.supplier.rakuten, class: "btn btn-default", target: :blank
       %td.center
         - if @spree_product.price.try(:yahoo)
           - if @price.lowest_price == @spree_product.price.yahoo
-            = link_to number_to_currency(@spree_product.price.yahoo), Supplier.get_yahoo_link(@spree_product.supplier.yahoo), class: "btn btn-success", target: :blank
+            = link_to number_to_currency(@spree_product.price.yahoo), @spree_product.supplier.yahoo, class: "btn btn-success", target: :blank
           - else
-            = link_to number_to_currency(@spree_product.price.yahoo), Supplier.get_yahoo_link(@spree_product.supplier.yahoo), class: "btn btn-default", target: :blank
+            = link_to number_to_currency(@spree_product.price.yahoo), @spree_product.supplier.yahoo, class: "btn btn-default", target: :blank
 
 - if @spree_product.supplier
   = link_to t("links.edit"), edit_supplier_path(@spree_product.supplier), class: "btn btn-default"
