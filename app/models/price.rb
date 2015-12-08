@@ -5,7 +5,7 @@ class Price < ActiveRecord::Base
   belongs_to :spree_product
 
   def self.get_prices
-    Spree::Product.all.each do |p|
+    Spree::Product.find_each do |p|
       Price.get_price(p)
     end
   end
@@ -39,7 +39,13 @@ class Price < ActiveRecord::Base
       supplier.spree_product_id = product.id
     end
 
-    unless price = Price.where(["spree_product_id = ?", product.id]).first
+    if price = Price.where(["spree_product_id = ?", product.id]).first
+      price.ngsj = nil
+      price.iiparts = nil
+      price.amazon = nil
+      price.rakuten = nil
+      price.yahoo = nil
+    else
       price = Price.new
       price.spree_product_id = product.id
     end
@@ -64,11 +70,14 @@ class Price < ActiveRecord::Base
 
             price.ngsj = p
             supplier.ngsj = detail_url
-          else
+          elsif page.at("#pricech")
             p = page.at("#pricech").text.gsub(/(円|,)/, "")
             puts "PRICE: #{p}"
 
             price.ngsj = p
+          else
+            puts "ITEM NOT FOUND"
+            price.ngsj = nil
           end
         when 1
           if div = page.at(".cat_list_003")
@@ -86,7 +95,7 @@ class Price < ActiveRecord::Base
             price.iiparts = p
             host = "http://11parts.shop-pro.jp/"
             supplier.iiparts = host + detail_url
-          else
+          elsif page.search("table.table1 tr")
             trs = page.search("table.table1 tr")
             text = trs[1].at("td.CELL_2").text
 
@@ -95,12 +104,19 @@ class Price < ActiveRecord::Base
             puts "PRICE: #{p}"
 
             price.iiparts = p
+          else
+            puts "ITEM NOT FOUND"
+            price.iiparts = nil
           end
         when 2
-          result = self.item_search(keyword)
-          # puts result[:price]
-          price.amazon = result[:price]
-          supplier.amazon = result[:url]
+          if result = self.item_search(keyword)
+            puts "PRICE: #{result[:price]}"
+            price.amazon = result[:price]
+            supplier.amazon = result[:url]
+          else
+            price.amazon = nil
+            supplier.amazon = nil
+          end
         when 3
           if div = page.at("#tableSarch")
             if tr = div.search("tr")[1]
@@ -124,7 +140,7 @@ class Price < ActiveRecord::Base
               price.rakuten = p
               supplier.rakuten = Supplier.shorten_url(Supplier.get_rakuten_link(detail_url))
             end
-          else
+          elsif page.at("#rakutenLimitedId_cart")
             table = page.at("#rakutenLimitedId_cart")
             trs = table.search("tr")
             tds = trs[1].search("td")
@@ -132,6 +148,9 @@ class Price < ActiveRecord::Base
             puts "PRICE: #{p}"
 
             price.rakuten = p
+          else
+            puts "ITEM NOT FOUND"
+            price.rakuten = nil
           end
         when 4
           if li = page.at("ul.ptItem li")
@@ -146,14 +165,18 @@ class Price < ActiveRecord::Base
 
             price.yahoo = p
             supplier.yahoo = detail_url
-          else
+          elsif page.at(".elPrice span")
             p = page.at(".elPrice span").text.gsub(/,/, "")
             puts "PRICE: #{p}"
 
             price.yahoo = p
+          else
+            puts "ITEM NOT FOUND"
+            price.yahoo = nil
           end
         end
-      rescue
+      rescue => ex
+        puts ex.message
       end
     end
 
