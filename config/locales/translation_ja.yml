@@ -198,6 +198,7 @@ ja:
     index: 一覧
     new: 新規作成
     save: 保存
+    search: 検索
     show: 詳細
 
     order:
@@ -233,6 +234,10 @@ ja:
     index: 一覧
     new: 新規作成
     show: 詳細
+
+    spree/product:
+      category: カテゴリー
+      keyword: キーワード
 
     spree/order:
       address: 未購入

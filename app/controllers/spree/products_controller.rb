@@ -4,13 +4,35 @@ class Spree::ProductsController < ApplicationController
   # GET /spree/products
   # GET /spree/products.json
   def index
-    @spree_products = Spree::Product.includes(:price, :supplier).page params[:page]
+    if params[:category].blank?
+      if params[:keyword].blank?
+        @spree_products = Spree::Product.includes(:price, :supplier).page params[:page]
+      else
+        @spree_products = Spree::Product.includes(:price, :supplier).where(["name LIKE ?", "%#{params[:keyword]}%"]).page params[:page]
+      end
 
-    @price_hash = Hash.new
-    prices = Price.where(["spree_product_id in (?)", @spree_products.pluck(:id)])
-    prices.each do |p|
-      @price_hash.store(p.id, p.lowest_price)
+      @price_hash = Hash.new
+      prices = Price.where(["spree_product_id in (?)", @spree_products.pluck(:id)])
+      prices.each do |p|
+        @price_hash.store(p.id, p.lowest_price)
+      end
+    else
+      if params[:keyword].blank?
+        spree_products = Spree::Product.find_by_sql(["SELECT * FROM spree_products LEFT JOIN spree_products_taxons ON spree_products.id = spree_products_taxons.product_id WHERE spree_products_taxons.taxon_id = ?", params[:category]])
+      else
+        spree_products = Spree::Product.find_by_sql(["SELECT * FROM spree_products LEFT JOIN spree_products_taxons ON spree_products.id = spree_products_taxons.product_id WHERE spree_products_taxons.taxon_id = ? AND spree_products.name LIKE ?", params[:category], "%#{params[:keyword]}%"])
+      end
+      @spree_products = Kaminari.paginate_array(spree_products).page params[:page]
+
+      ids = @spree_products.inject(Array.new){|a, p| a << p.id; a}
+      @price_hash = Hash.new
+      prices = Price.where(["spree_product_id in (?)", ids])
+      prices.each do |p|
+        @price_hash.store(p.id, p.lowest_price)
+      end
     end
+
+    @categories = ActiveRecord::Base.connection.select_all("select * from spree_taxon_translations where id in (1,2,3,4,5,6,7,8,241,242,243,244,245,246,247,248,252,253,254,255,256,257,258,260)").inject(Array.new){|a, c| a << [c["name"], c["id"]]; a}
 
     session[:previous_page] = request.original_url
   end

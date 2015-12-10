@@ -67,8 +67,6 @@ class Product < ActiveRecord::Base
           self.product_search_for_tyre(parentcategory, nil, product_list_page_link) rescue nil
         end
       end
-
-
     end
   end
 

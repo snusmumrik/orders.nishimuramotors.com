@@ -2,6 +2,13 @@
 
 .right= link_to t("links.price.update_all"), spree_products_update_price_all_path, :method => :get, :data => { :confirm => t("messages.are_you_sure") }, class: "btn btn-default"
 
+= form_for Spree::Product.new, url: spree_products_path, remote: false, html: {method: :get, class: "form-inline search-form"} do |f|
+  = f.label t("views.spree/product.category"), class: "title float-left"
+  = select_tag :category, options_for_select(@categories, params[:category]), include_blank: true, class: "form-control float-left clear"
+  = f.label t("views.spree/product.keyword"), class: "title float-left"
+  = text_field "", :keyword, value: params[:keyword], class: "form-control float-left"
+  = f.submit t("links.search"), class: "btn btn-default"
+
 = paginate @spree_products
 
 %table.table.table-default
