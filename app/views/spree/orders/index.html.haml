@@ -62,14 +62,16 @@
           - else
             %button.btn.btn-default= spree_order.state
         %td
-          - if @payments[spree_order.id] == "checkout"
+          - if spree_order.payment_state == "checkout"
             %button.btn.btn-default= t("views.spree/order.checkout")
-          - elsif @payments[spree_order.id] == "completed"
-            %button.btn.btn-success= t("views.spree/order.completed")
-          - elsif @payments[spree_order.id] == "pending"
+          - elsif spree_order.payment_state == "pending"
             %button.btn.btn-warning= t("views.spree/order.pending")
-          - elsif @payments[spree_order.id]
-            %button.btn.btn-default= @payments[spree_order.id]
+          - elsif spree_order.payment_state == "paid"
+            %button.btn.btn-success= t("views.spree/order.paid")
+          - elsif spree_order.payment_state == "failed"
+            %button.btn.btn-danger= t("views.spree/order.failed")
+          - else
+            %button.btn.btn-default= spree_order.payment_state
         %td
           - if spree_order.shipment_state == "ready"
             %button.btn.btn-info= t("views.spree/order.ready")

@@ -243,6 +243,8 @@ ja:
       address: 未購入
       checkout: 未確認
       completed: 完了
+      failed: 失敗
+      paid: 支払完了
       pending: 保留
       ready: 発送可能
       shipped: 発送完了

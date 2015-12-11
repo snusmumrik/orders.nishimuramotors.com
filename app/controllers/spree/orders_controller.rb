@@ -5,7 +5,7 @@ class Spree::OrdersController < ApplicationController
   # GET /spree/orders
   # GET /spree/orders.json
   def index
-    @spree_orders = Spree::Order.order("created_at DESC").page params[:page]
+    @spree_orders = Spree::Order.where("state = 'complete'").order("created_at DESC").page params[:page]
     begin
       payment_array = ActiveRecord::Base.connection.select_all("select * from spree_payments where order_id in (#{@spree_orders.pluck(:id).join(',')})").to_hash
       @payments = Hash.new
