@@ -18,9 +18,9 @@ class Spree::ProductsController < ApplicationController
       end
     else
       if params[:keyword].blank?
-        spree_products = Spree::Product.find_by_sql(["SELECT * FROM spree_products LEFT JOIN spree_products_taxons ON spree_products.id = spree_products_taxons.product_id WHERE spree_products_taxons.taxon_id = ?", params[:category]])
+        spree_products = Spree::Product.find_by_sql(["SELECT a.* FROM spree_products a LEFT JOIN spree_products_taxons b ON a.id = b.product_id WHERE b.taxon_id = ?", params[:category]])
       else
-        spree_products = Spree::Product.find_by_sql(["SELECT * FROM spree_products LEFT JOIN spree_products_taxons ON spree_products.id = spree_products_taxons.product_id WHERE spree_products_taxons.taxon_id = ? AND spree_products.name LIKE ?", params[:category], "%#{params[:keyword]}%"])
+        spree_products = Spree::Product.find_by_sql(["SELECT a.* FROM spree_products a LEFT JOIN spree_products_taxons b ON a.id = b.product_id WHERE b.taxon_id = ? AND a.name LIKE ?", params[:category], "%#{params[:keyword]}%"])
       end
       @spree_products = Kaminari.paginate_array(spree_products).page params[:page]
 
