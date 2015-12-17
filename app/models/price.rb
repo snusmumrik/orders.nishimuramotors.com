@@ -237,14 +237,19 @@ class Price < ActiveRecord::Base
       new_price = (low * (1 + percentage)).round(-1)
       lowest_price = low
     end
+
+    new_price = lowest_price + 500 if lowest_price
+
     puts new_price
     price.update_attributes({selling_price: new_price, lowest_price: lowest_price })
 
-    if array.size == 0
-      product.avilable_on = nil
+    begin
+      product.avilable_on = nil if array.size == 0
+    rescue => ex
+      puts ex.message
     end
 
-    ActiveRecord::Base.connection.update("update spree_prices set amount = #{new_price} where variant_id = #{product.id}")
+    ActiveRecord::Base.connection.update("update spree_prices set amount = #{new_price} where variant_id = #{product.id}") if new_price
   end
 
   private
