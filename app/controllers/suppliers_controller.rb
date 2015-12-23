@@ -29,7 +29,7 @@ class SuppliersController < ApplicationController
 
     respond_to do |format|
       if @supplier.save
-        Supplier.update_price(@supplier.spree_product_id)
+        Price.get_price(@supplier.spree_product)
         if session[:previous_page]
           redirect_path = session[:previous_page]
         else
@@ -49,7 +49,7 @@ class SuppliersController < ApplicationController
   def update
     respond_to do |format|
       if @supplier.update(supplier_params)
-        Supplier.update_price(@supplier.spree_product_id)
+        Price.get_price(@supplier.spree_product)
         if session[:previous_page]
           redirect_path = session[:previous_page]
         else
@@ -82,7 +82,7 @@ class SuppliersController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def supplier_params
-      params.require(:supplier).permit(:spree_product_id, :ngsj, :iiparts, :amazon, :rakuten, :yahoo)
+      params.require(:supplier).permit(:spree_product_id, :ngsj, :bikepartscenter, :nbstire, :iiparts, :amazon, :rakuten, :yahoo)
     end
 
   def get_spree_product

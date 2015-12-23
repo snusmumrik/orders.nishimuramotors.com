@@ -125,7 +125,7 @@ class Product < ActiveRecord::Base
     end
   end
 
-  def self.product_search_for_tyre(parentcategory, subcategories, url, root= "http://www.bike-partscenter.com")
+  def self.product_search_for_tyre(parentcategory, subcategories, url)
     agent = Mechanize.new
     product_list_page = agent.get(url)
 
@@ -138,7 +138,7 @@ class Product < ActiveRecord::Base
       detail_page = agent.get(detail_link)
 
       image_url = detail_page.at(".main_image_item_box").attr("href")
-      name = detail_page.at(".item_name").text.strip
+      name = detail_page.at(".item_name").text.gsub(/□?\[[0-9-]+\]/, "").strip
       model_number = detail_page.at(".model_number").text
       price = detail_page.at("#pricech").text
       price = price.sub("円", "") if price

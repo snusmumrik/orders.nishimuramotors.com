@@ -167,7 +167,9 @@ ja:
 
       supplier:
         amazon: amazon  #g
+        bikepartscenter: バイクパーツセンター タイヤ専門館
         iiparts: NBS
+        nbstire: NBS タイヤ専門館
         ngsj: バイクパーツセンター
         rakuten: 楽天
         spree_product: :activerecord.models.spree/product

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150930064149) do
+ActiveRecord::Schema.define(version: 20151218053720) do
 
   create_table "friendly_id_slugs", force: :cascade do |t|
     t.string   "slug",           limit: 255, null: false
@@ -33,7 +33,9 @@ ActiveRecord::Schema.define(version: 20150930064149) do
     t.integer  "selling_price",    limit: 4
     t.integer  "lowest_price",     limit: 4
     t.integer  "ngsj",             limit: 4
+    t.integer  "bikepartscenter",  limit: 4
     t.integer  "iiparts",          limit: 4
+    t.integer  "nbstire",          limit: 4
     t.integer  "amazon",           limit: 4
     t.integer  "rakuten",          limit: 4
     t.integer  "yahoo",            limit: 4
@@ -355,6 +357,37 @@ ActiveRecord::Schema.define(version: 20150930064149) do
   end
 
   add_index "spree_orders_promotions", ["order_id", "promotion_id"], name: "index_spree_orders_promotions_on_order_id_and_promotion_id", using: :btree
+
+  create_table "spree_pages", force: :cascade do |t|
+    t.string   "title",                    limit: 255
+    t.text     "body",                     limit: 65535
+    t.string   "slug",                     limit: 255
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.boolean  "show_in_header",                         default: false, null: false
+    t.boolean  "show_in_footer",                         default: false, null: false
+    t.string   "foreign_link",             limit: 255
+    t.integer  "position",                 limit: 4,     default: 1,     null: false
+    t.boolean  "visible",                                default: true
+    t.string   "meta_keywords",            limit: 255
+    t.string   "meta_description",         limit: 255
+    t.string   "layout",                   limit: 255
+    t.boolean  "show_in_sidebar",                        default: false, null: false
+    t.string   "meta_title",               limit: 255
+    t.boolean  "render_layout_as_partial",               default: false
+  end
+
+  add_index "spree_pages", ["slug"], name: "index_spree_pages_on_slug", using: :btree
+
+  create_table "spree_pages_stores", id: false, force: :cascade do |t|
+    t.integer  "store_id",   limit: 4
+    t.integer  "page_id",    limit: 4
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "spree_pages_stores", ["page_id"], name: "index_spree_pages_stores_on_page_id", using: :btree
+  add_index "spree_pages_stores", ["store_id"], name: "index_spree_pages_stores_on_store_id", using: :btree
 
   create_table "spree_payment_capture_events", force: :cascade do |t|
     t.decimal  "amount",               precision: 10, scale: 2, default: 0.0
@@ -1184,7 +1217,9 @@ ActiveRecord::Schema.define(version: 20150930064149) do
   create_table "suppliers", force: :cascade do |t|
     t.integer  "spree_product_id", limit: 4
     t.string   "ngsj",             limit: 255
+    t.string   "bikepartscenter",  limit: 255
     t.string   "iiparts",          limit: 255
+    t.string   "nbstire",          limit: 255
     t.string   "amazon",           limit: 255
     t.string   "rakuten",          limit: 255
     t.string   "yahoo",            limit: 255

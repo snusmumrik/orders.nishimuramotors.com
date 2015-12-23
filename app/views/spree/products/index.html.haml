@@ -17,7 +17,9 @@
       %th=t "activerecord.attributes.spree/product.name"
       %th=t "activerecord.attributes.spree/product.prices"
       %th=t "activerecord.attributes.supplier.ngsj"
+      %th=t "activerecord.attributes.supplier.bikepartscenter"
       %th=t "activerecord.attributes.supplier.iiparts"
+      %th=t "activerecord.attributes.supplier.nbstire"
       %th=t "activerecord.attributes.supplier.amazon"
       %th=t "activerecord.attributes.supplier.rakuten"
       %th=t "activerecord.attributes.supplier.yahoo"
@@ -37,11 +39,23 @@
             - else
               = link_to number_to_currency(spree_product.price.try(:ngsj)), spree_product.supplier.try(:ngsj), class: "btn btn-default", target: :blank
         %td.center
+          - if spree_product.price.try(:bikepartscenter)
+            - if @price_hash[spree_product.id] == spree_product.price.try(:bikepartscenter)
+              = link_to number_to_currency(spree_product.price.try(:bikepartscenter)), spree_product.supplier.try(:bikepartscenter), class: "btn btn-success", target: :blank
+            - else
+              = link_to number_to_currency(spree_product.price.try(:bikepartscenter)), spree_product.supplier.try(:bikepartscenter), class: "btn btn-default", target: :blank
+        %td.center
           - if spree_product.price.try(:iiparts)
             - if @price_hash[spree_product.id] == spree_product.price.try(:iiparts)
               = link_to number_to_currency(spree_product.price.try(:iiparts)), spree_product.supplier.try(:iiparts), class: "btn btn-success", target: :blank
             - else
               = link_to number_to_currency(spree_product.price.try(:iiparts)), spree_product.supplier.try(:iiparts), class: "btn btn-default", target: :blank
+        %td.center
+          - if spree_product.price.try(:nbstire)
+            - if @price_hash[spree_product.id] == spree_product.price.try(:nbstire)
+              = link_to number_to_currency(spree_product.price.try(:nbstire)), spree_product.supplier.try(:nbstire), class: "btn btn-success", target: :blank
+            - else
+              = link_to number_to_currency(spree_product.price.try(:nbstire)), spree_product.supplier.try(:nbstire), class: "btn btn-default", target: :blank
         %td.center
           - if spree_product.price.try(:amazon)
             - if @price_hash[spree_product.id] == spree_product.price.try(:amazon)
