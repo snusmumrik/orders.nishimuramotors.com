@@ -29,7 +29,6 @@ class SuppliersController < ApplicationController
 
     respond_to do |format|
       if @supplier.save
-        Price.get_price(@supplier.spree_product)
         if session[:previous_page]
           redirect_path = session[:previous_page]
         else
@@ -49,7 +48,6 @@ class SuppliersController < ApplicationController
   def update
     respond_to do |format|
       if @supplier.update(supplier_params)
-        Price.get_price(@supplier.spree_product)
         if session[:previous_page]
           redirect_path = session[:previous_page]
         else
