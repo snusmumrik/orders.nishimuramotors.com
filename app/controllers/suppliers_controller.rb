@@ -80,7 +80,7 @@ class SuppliersController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def supplier_params
-      params.require(:supplier).permit(:spree_product_id, :ngsj, :bikepartscenter, :nbstire, :iiparts, :amazon, :rakuten, :yahoo)
+      params.require(:supplier).permit(:spree_product_id, :ngsj, :bikepartscenter, :nbstire, :iiparts, :amazon, :asin, :rakuten, :yahoo)
     end
 
   def get_spree_product

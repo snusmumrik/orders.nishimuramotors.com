@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151218053720) do
+ActiveRecord::Schema.define(version: 20151230025412) do
 
   create_table "friendly_id_slugs", force: :cascade do |t|
     t.string   "slug",           limit: 255, null: false
@@ -1221,6 +1221,7 @@ ActiveRecord::Schema.define(version: 20151218053720) do
     t.string   "iiparts",          limit: 255
     t.string   "nbstire",          limit: 255
     t.string   "amazon",           limit: 255
+    t.string   "asin",             limit: 255
     t.string   "rakuten",          limit: 255
     t.string   "yahoo",            limit: 255
     t.datetime "created_at",                   null: false
