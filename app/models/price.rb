@@ -289,6 +289,12 @@ class Price < ActiveRecord::Base
               puts "SKIP"
               price.bikepartscenter = nil
               supplier.bikepartscenter = nil
+            elsif page.at("#pricech")
+              p = page.at("#pricech").text.gsub(/(円|,)/, "")
+              puts "PRICE: #{p} BY DETAIL"
+
+              price.bikepartscenter =  p
+              supplier.bikepartscenter = url
             elsif a = page.at("div.list_table_middle h2 a")
               detail_url = a.attr("href")
               detail_page = agent.get(detail_url)
@@ -297,12 +303,6 @@ class Price < ActiveRecord::Base
 
               price.bikepartscenter = p
               supplier.bikepartscenter = detail_url
-            elsif page.at("#pricech")
-              p = page.at("#pricech").text.gsub(/(円|,)/, "")
-              puts "PRICE: #{p} BY DETAIL"
-
-              price.bikepartscenter =  p
-              supplier.bikepartscenter = url
             else
               puts "ITEM NOT FOUND"
               price.bikepartscenter = nil
