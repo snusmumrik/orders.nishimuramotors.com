@@ -289,6 +289,10 @@ class Price < ActiveRecord::Base
               puts "SKIP"
               price.bikepartscenter = nil
               supplier.bikepartscenter = nil
+            elsif page.at("input[value='カートに入れる']").nil?
+              puts "SOLD OUT"
+              price.bikepartscenter = nil
+              supplier.bikepartscenter = nil
             elsif page.at("#pricech")
               p = page.at("#pricech").text.gsub(/(円|,)/, "")
               puts "PRICE: #{p} BY DETAIL"
@@ -324,20 +328,10 @@ class Price < ActiveRecord::Base
               next
             end
 
-            if a = page.at("div.list_table_middle h2 a")
-              detail_url = a.attr("href")
-              detail_page = agent.get(detail_url)
-              p = detail_page.at("#pricech").text.gsub(/(円|,)/, "")
-              if p =~ /[0-9,]/
-                puts "PRICE: #{p}"
-
-                price.nbstire = p
-                supplier.nbstire = detail_url
-              else
-                puts "ITEM NOT FOUND1"
-                price.nbstire = nil
-                supplier.nbstire = nil
-              end
+            if page.at("input[value='カートに入れる']").nil?
+              puts "SOLD OUT"
+              price.nbstire = nil
+              supplier.nbstire = nil
             elsif page.at("#pricech")
               p = page.at("#pricech").text.gsub(/(円|,)/, "")
               puts p
@@ -346,6 +340,22 @@ class Price < ActiveRecord::Base
 
                 price.nbstire =  p
                 supplier.nbstire = url
+              else
+                puts "ITEM NOT FOUND1"
+                price.nbstire = nil
+                supplier.nbstire = nil
+              end
+            elsif a = page.at("div.list_table_middle h2 a")
+              detail_url = a.attr("href")
+              puts detail_url
+              detail_page = agent.get(detail_url)
+              p = detail_page.at("#pricech").text.gsub(/(円|,)/, "")
+              puts "PRICE: #{p}"
+              if p =~ /[0-9,]/
+                puts "PRICE: #{p}"
+
+                price.nbstire = p
+                supplier.nbstire = detail_url
               else
                 puts "ITEM NOT FOUND2"
                 price.nbstire = nil
@@ -549,18 +559,22 @@ class Price < ActiveRecord::Base
   end
 
   def self.sign_in_to_nbstire(agent)
-    login_page = agent.get("http://nbs-tire.ocnk.net")
-    form = login_page.form_with(action: "https://nbs-tire.ocnk.net/login-auth")
+    page = agent.get("http://nbs-tire.ocnk.net")
+    form = page.form_with(action: "https://nbs-tire.ocnk.net/login-auth")
     form.field_with(name: "email").value = NBS_EMAIL
     form.field_with(name: "password").value = NBS_PASSWORD
     button = form.button_with(id: "side_login_submit")
-    login_page2 = agent.submit(form, button)
-    # if login_page2.at("input[value='ログアウト']")
-    #   puts "SIGNED IN"
-    #   return true
-    # else
-    #   puts "SIGN IN FAILED"
-    #   return false
-    # end
+    page2 = agent.submit(form, button)
+    unless page2.meta_refresh.empty?
+      page2 = agent.get(page2.meta_refresh[0].uri.to_s)
+    end
+
+    if page2.at("input[value='ログアウト']")
+      puts "SIGNED IN"
+      return true
+    else
+      puts "SIGN IN FAILED"
+      return false
+    end
   end
 end
