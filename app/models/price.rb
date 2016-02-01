@@ -6,6 +6,7 @@ class Price < ActiveRecord::Base
 
   def self.get_prices
     Spree::Product.find_each do |p|
+      next if p.available_on.nil?
       Price.get_price(p)
     end
   end
@@ -76,7 +77,7 @@ class Price < ActiveRecord::Base
               p = page.at("#pricech").text.gsub(/(円|,)/, "")
               puts "PRICE: #{p} BY DETAIL"
 
-              price.ngsj = p
+              price.ngsj = self.include_tax(p)
               supplier.ngsj = url
             elsif li = page.at("ul.layout160 li")
               detail_url = page.at("div.item_data a").attr("href")
@@ -87,7 +88,7 @@ class Price < ActiveRecord::Base
               # p = li.at("p.selling_price span").text.gsub(/(円|,)/, "")
               # puts "PRICE: #{p}"
 
-              price.ngsj = p
+              price.ngsj = self.include_tax(p)
               supplier.ngsj = detail_url
             else
               puts "ITEM NOT FOUND"
@@ -297,7 +298,7 @@ class Price < ActiveRecord::Base
               p = page.at("#pricech").text.gsub(/(円|,)/, "")
               puts "PRICE: #{p} BY DETAIL"
 
-              price.bikepartscenter =  p
+              price.bikepartscenter =  self.include_tax(p)
               supplier.bikepartscenter = url
             elsif a = page.at("div.list_table_middle h2 a")
               detail_url = a.attr("href")
@@ -305,7 +306,7 @@ class Price < ActiveRecord::Base
               p = detail_page.at("#pricech").text.gsub(/(円|,)/, "")
               puts "PRICE: #{p} BY SEARCH"
 
-              price.bikepartscenter = p
+              price.bikepartscenter = self.include_tax(p)
               supplier.bikepartscenter = detail_url
             else
               puts "ITEM NOT FOUND"
@@ -338,7 +339,7 @@ class Price < ActiveRecord::Base
               if p =~ /[0-9,]/
                 puts "PRICE: #{p}"
 
-                price.nbstire =  p
+                price.nbstire =  self.include_tax(p)
                 supplier.nbstire = url
               else
                 puts "ITEM NOT FOUND1"
@@ -354,7 +355,7 @@ class Price < ActiveRecord::Base
               if p =~ /[0-9,]/
                 puts "PRICE: #{p}"
 
-                price.nbstire = p
+                price.nbstire = self.include_tax(p)
                 supplier.nbstire = detail_url
               else
                 puts "ITEM NOT FOUND2"
@@ -576,5 +577,9 @@ class Price < ActiveRecord::Base
       puts "SIGN IN FAILED"
       return false
     end
+  end
+
+  def self.include_tax(price)
+    (price.to_i*1.08).round
   end
 end
