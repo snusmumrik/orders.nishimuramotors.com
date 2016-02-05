@@ -63,7 +63,7 @@ class Spree::OrdersController < ApplicationController
 
     respond_to do |format|
       if @spree_order.save
-        format.html { redirect_to @spree_order, notice: 'Order was successfully created.' }
+        format.html { redirect_to @spree_order, notice: t("activerecord.models.spree/order") + t("messages.successfully_created") }
         format.json { render :show, status: :created, location: @spree_order }
       else
         format.html { render :new }
@@ -77,7 +77,7 @@ class Spree::OrdersController < ApplicationController
   def update
     respond_to do |format|
       if @spree_order.update(spree_order_params)
-        format.html { redirect_to @spree_order, notice: 'Order was successfully updated.' }
+        format.html { redirect_to @spree_order, notice: t("activerecord.models.spree/order") + t("messages.successfully_updated") }
         format.json { render :show, status: :ok, location: @spree_order }
       else
         format.html { render :edit }
@@ -91,7 +91,7 @@ class Spree::OrdersController < ApplicationController
   def destroy
     @spree_order.destroy
     respond_to do |format|
-      format.html { redirect_to spree_orders_url, notice: 'Order was successfully destroyed.' }
+      format.html { redirect_to spree_orders_url, notice: t("activerecord.models.spree/order") + t("messages.successfully_destroyed") }
       format.json { head :no_content }
     end
   end
@@ -104,6 +104,6 @@ class Spree::OrdersController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def spree_order_params
-      params[:spree_order]
+      params.require(:spree_order).permit(:state)
     end
 end

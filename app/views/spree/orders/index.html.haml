@@ -85,6 +85,7 @@
           %ul
             %li= link_to t("links.show"), spree_order_path(spree_order), class: "btn btn-default"
             %li= link_to t("links.order.pdf"), spree_order_path(spree_order, format: "pdf"), class: "btn btn-default"
+            %li= link_to t("links.cancel"), spree_order_path(spree_order, spree_order: {state: "canceled" }), :method => :put, :data => { :confirm => t("messages.are_you_sure") }, class: "btn btn-default"
             -# %li= link_to t("links.edit"), edit_spree_order_path(spree_order), class: "btn btn-default"
             -# %li= link_to t("links.destroy"), spree_order, :method => :delete, :data => { :confirm => 'Are you sure?' }, class: "btn btn-default"
 

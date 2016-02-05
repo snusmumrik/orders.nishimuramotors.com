@@ -196,6 +196,7 @@ ja:
   links:
     back: 戻る
     back_to_top: トップへ戻る
+    cancel: キャンセル
     destroy: 削除
     edit: 編集
     index: 一覧
@@ -231,6 +232,9 @@ ja:
     destroy: を削除しました。
     are_you_sure: 本当によろしいですか？
     unauthorided: 権限のないリクエストです
+    successfully_created: を登録しました。
+    successfully_updated: を更新しました。
+    successfully_destroyed: を削除しました。
 
   views:
     edit: 編集
