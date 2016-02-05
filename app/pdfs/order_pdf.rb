@@ -125,7 +125,7 @@ class OrderPDF < Prawn::Document
   # テーブルに表示するデータを作成(2次元配列)
   def line_item_rows
     # テーブルのヘッダ部
-    arr = [["#", "品名", "単価", "数量", "値段"]]
+    arr = [["", "品名", "単価", "数量", "値段"]]
 
     # テーブルのデータ部
     @line_items = Hash.new
@@ -141,8 +141,15 @@ class OrderPDF < Prawn::Document
               jpy_comma(@line_items[p.id][:price]* @line_items[p.id][:quantity])]
     end
 
-    # テーブルの合計部
-    arr << ["", "", "", "合計", "#{jpy_comma(@spree_order.item_total)} 円"]
+    # 商品の合計
+    arr << ["", "", "", "商品代", "#{jpy_comma(@spree_order.item_total)} 円"]
+
+    # 送料
+    arr << ["", "", "", "送料", "#{jpy_comma(@spree_order.shipment_total)} 円"]
+
+    # 合計
+    arr << ["", "", "", "合計", "#{jpy_comma(@spree_order.total)} 円"]
+
     return arr
   end
 

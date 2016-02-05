@@ -13,13 +13,13 @@
   %tr
     %th
       =t "activerecord.attributes.spree/order.item_total"
-      = surround "(", ")" do
-        =t "activerecord.attributes.spree/order.adjustment_total"
+      -# = surround "(", ")" do
+      -#   =t "activerecord.attributes.spree/order.adjustment_total"
     %td
       = number_to_currency @spree_order.item_total
-      <br>
-      = surround "(", ")" do
-        = number_to_currency @spree_order.adjustment_total
+      -# <br>
+      -# = surround "(", ")" do
+      -#   = number_to_currency @spree_order.adjustment_total
   %tr
     %th=t "activerecord.attributes.spree/order.shipment_total"
     %td= number_to_currency @spree_order.shipment_total
@@ -54,10 +54,25 @@
         = @spree_order.ship_address.phone
   %tr
     %th=t "activerecord.attributes.spree/order.state"
-    %td= @spree_order.state
+    %td
+      - if @spree_order.state == "complete"
+        %button.btn.btn-success= t("views.spree/order.completed")
+      - elsif @spree_order.state == "address"
+        %button.btn.btn-default= t("views.spree/order.address")
+      - else
+        %button.btn.btn-default= @spree_order.state
   %tr
     %th=t "activerecord.attributes.spree/order.shipment_state"
-    %td= @spree_order.shipment_state
+    %td
+      - if @spree_order.shipment_state == "ready"
+        %button.btn.btn-info= t("views.spree/order.ready")
+      - elsif @spree_order.shipment_state == "shipped"
+        %button.btn.btn-success= t("views.spree/order.shipped")
+      - elsif @spree_order.shipment_state == "pending"
+        %button.btn.btn-warning= t("views.spree/order.pending")
+      - elsif @spree_order.shipment_state
+        %button.btn.btn-default= @spree_order.shipment_state
+
 
 -# = link_to t("links.edit"), edit_spree_order_path(@spree_order), class: "btn btn-default"
 = link_to t("links.order.pdf"), spree_order_path(@spree_order, format: "pdf"), class: "btn btn-default"

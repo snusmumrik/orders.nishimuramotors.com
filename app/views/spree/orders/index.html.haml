@@ -29,7 +29,7 @@
                 = p.name
                 %button.btn.btn-default.btn-sm= "x #{@line_items[spree_order.id][p.id][:quantity]}"
         %td
-          = number_to_currency(spree_order.item_total + spree_order.adjustment_total)
+          = number_to_currency spree_order.item_total
         %td= number_to_currency spree_order.shipment_total
         %td= number_to_currency spree_order.total
         %td
