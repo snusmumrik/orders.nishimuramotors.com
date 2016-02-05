@@ -59,7 +59,7 @@ class Spree::ProductsController < ApplicationController
 
     respond_to do |format|
       if @spree_product.save
-        format.html { redirect_to @spree_product, notice: 'Product was successfully created.' }
+        format.html { redirect_to @spree_product, notice: t("activerecord.models.spree/product") + t("messages.successfully_created") }
         format.json { render :show, status: :created, location: @spree_product }
       else
         format.html { render :new }
@@ -73,7 +73,7 @@ class Spree::ProductsController < ApplicationController
   def update
     respond_to do |format|
       if @spree_product.update(spree_product_params)
-        format.html { redirect_to request.referrer, notice: t("activerecord.models.spree/product") + t("messages.updated") }
+        format.html { redirect_to request.referrer, notice: t("activerecord.models.spree/spree/product") + t("messages.updated") }
         format.json { render :show, status: :ok, location: @spree_product }
       else
         format.html { render :edit }
@@ -87,7 +87,7 @@ class Spree::ProductsController < ApplicationController
   def destroy
     @spree_product.destroy
     respond_to do |format|
-      format.html { redirect_to spree_products_url, notice: 'Product was successfully destroyed.' }
+      format.html { redirect_to spree_products_url, notice: t("activerecord.models.spree/product") + t("messages.successfully_destroyed") }
       format.json { head :no_content }
     end
   end

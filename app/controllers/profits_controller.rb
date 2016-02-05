@@ -56,7 +56,7 @@ class ProfitsController < ApplicationController
   def destroy
     @profit.destroy
     respond_to do |format|
-      format.html { redirect_to profits_url, notice: 'Profit was successfully destroyed.' }
+      format.html { redirect_to profits_url, notice: t("activerecord.models.profit") + t("messages.successfully_destroyed") }
       format.json { head :no_content }
     end
   end

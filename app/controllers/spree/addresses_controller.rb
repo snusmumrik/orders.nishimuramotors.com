@@ -28,7 +28,7 @@ class Spree::AddressesController < ApplicationController
 
     respond_to do |format|
       if @spree_address.save
-        format.html { redirect_to @spree_address, notice: 'Address was successfully created.' }
+        format.html { redirect_to @spree_address, notice: t("activerecord.models.spree/address") + t("messages.successfully_created") }
         format.json { render :show, status: :created, location: @spree_address }
       else
         format.html { render :new }
@@ -42,7 +42,7 @@ class Spree::AddressesController < ApplicationController
   def update
     respond_to do |format|
       if @spree_address.update(spree_address_params)
-        format.html { redirect_to @spree_address, notice: 'Address was successfully updated.' }
+        format.html { redirect_to @spree_address, notice: t("activerecord.models.spree/address") + t("messages.successfully_updated") }
         format.json { render :show, status: :ok, location: @spree_address }
       else
         format.html { render :edit }
@@ -56,7 +56,7 @@ class Spree::AddressesController < ApplicationController
   def destroy
     @spree_address.destroy
     respond_to do |format|
-      format.html { redirect_to spree_addresses_url, notice: 'Address was successfully destroyed.' }
+      format.html { redirect_to spree_addresses_url, notice: t("activerecord.models.spree/address") + t("messages.successfully_destroyed") }
       format.json { head :no_content }
     end
   end
