@@ -216,6 +216,9 @@ ja:
       list: 掲載
       unlist: 掲載停止
 
+    purchase:
+      create: 在庫割当
+
     user:
       sign_in: サインイン
       sign_in_with: でサインイン
@@ -233,6 +236,7 @@ ja:
     are_you_sure: 本当によろしいですか？
     unauthorided: 権限のないリクエストです
     successfully_created: を登録しました。
+    not_created: 登録に失敗しました。
     successfully_updated: を更新しました。
     successfully_destroyed: を削除しました。
 
@@ -241,6 +245,11 @@ ja:
     index: 一覧
     new: 新規作成
     show: 詳細
+
+    purchase:
+      purchased: 発注済
+      amount: 仕入割当
+      needed_to_be_purchased: 必要注文数
 
     spree/product:
       category: カテゴリー

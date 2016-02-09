@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  spree_product_id: 
+  spree_order_id: 
+  amount: 1
+
+two:
+  spree_product_id: 
+  spree_order_id: 
+  amount: 1

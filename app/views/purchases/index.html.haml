@@ -2,22 +2,33 @@
 
 .right= link_to t("links.price.update"), spree_purchases_update_price_path, :method => :get, :data => { :confirm => t("messages.are_you_sure") }, class: "btn btn-default"
 
-= paginate @spree_orders
+-# = paginate @spree_orders
 
 %table.table.table-default
   %thead
     %tr
       %th=t "activerecord.attributes.spree/product.name"
-      %th=t "activerecord.attributes.spree/line_item.quantity"
       %th=t "activerecord.attributes.spree/line_item.price"
       %th=t "activerecord.attributes.price.lowest_price"
+      %th=t "activerecord.attributes.spree/line_item.quantity"
+      %th=t "views.purchase.purchased"
+      %th=t "views.purchase.needed_to_be_purchased"
+      %th=t "views.purchase.amount"
 
   %tbody
     - if @spree_products
       - @spree_products.each do |spree_product|
         %tr
           %td= link_to spree_product.name, spree_product
-          %td= @quantity_hash[spree_product.id]
           %td= number_to_currency spree_product.price.selling_price
           %td
             = link_to "#{number_to_currency(spree_product.price.lowest_price)} (#{@supplier_hash[spree_product.id][:name]})", @supplier_hash[spree_product.id][:url], class: "btn btn-default", target: "blank"
+          %td= @quantity_hash[spree_product.id]
+          %td= @purchase_hash[spree_product.id]
+          %td= @quantity_hash[spree_product.id] - @purchase_hash[spree_product.id]
+          %td
+            = form_for @purchase do |f|
+              = f.hidden_field :spree_product_id, value: spree_product.id
+              = f.text_field :amount, class: "form-control"
+              = f.submit t("links.purchase.create"), class: "btn btn-default"
+

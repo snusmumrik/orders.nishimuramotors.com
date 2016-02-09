@@ -4,13 +4,19 @@ class PurchasesController < ApplicationController
   # GET /purchases
   # GET /purchases.json
   def index
-    @spree_orders = Spree::Order.where(["shipment_state != ?", "shipped"]).order("created_at DESC").page params[:page]
+    @spree_orders = Spree::Order.where(["shipment_state != ?", "shipped"]).order("created_at DESC")# .page params[:page]
 
     begin
-      payment_array = ActiveRecord::Base.connection.select_all("select * from spree_payments where order_id in (#{@spree_orders.pluck(:id).join(',')})").to_hash
-      @payments = Hash.new
-      payment_array.each do |p|
-        @payments.store(p["order_id"], p["state"])
+      # payment_array = ActiveRecord::Base.connection.select_all("select * from spree_payments where order_id in (#{@spree_orders.pluck(:id).join(',')})").to_hash
+      # @payments = Hash.new
+      # payment_array.each do |p|
+      #   @payments.store(p["order_id"], p["state"])
+      # end
+
+      purchase_array = ActiveRecord::Base.connection.select_all("select * from purchases where spree_order_id in (#{@spree_orders.pluck(:id).join(',')})").to_hash
+      @purchase_hash = Hash.new {|hash, key| hash[key] = 0}
+      purchase_array.each do |p|
+        @purchase_hash[p["spree_product_id"]] += p["amount"]
       end
 
       line_items_array = ActiveRecord::Base.connection.select_all("select * from spree_payments left join spree_line_items on spree_payments.order_id = spree_line_items.order_id left join spree_variants on spree_line_items.variant_id = spree_variants.id where spree_payments.state = 'completed' and spree_line_items.order_id in (#{@spree_orders.pluck(:id).join(',')}) and spree_payments.state = 'completed'").to_hash
@@ -41,10 +47,11 @@ class PurchasesController < ApplicationController
           hash = {name: t("activerecord.attributes.supplier.rakuten"), url: Supplier.get_rakuten_link(supplier.rakuten)}
           @supplier_hash.store(spree_product.id, hash)
         elsif spree_product.price.lowest_price == spree_product.price.yahoo
-          hash = {name: t("activerecord.attributes.supplier.yahoo"), url: Supplier.get_yahoo_link(supplier.yahoo)}
+          hash = {name: t("activerecord.attributes.supplier.yahoo"), url: supplier.yahoo}
           @supplier_hash.store(spree_product.id, hash)
         end
       end
+      @purchase = Purchase.new
     rescue
     end
   end
@@ -67,13 +74,15 @@ class PurchasesController < ApplicationController
   # POST /purchases.json
   def create
     @purchase = Purchase.new(purchase_params)
+    spree_order = ActiveRecord::Base.connection.select_one("select * from spree_line_items a left join spree_variants b on a.variant_id = b.id left join purchases c on a.order_id = c.spree_order_id where b.product_id = #{@purchase.spree_product_id} and c.amount is null")
+    @purchase.spree_order_id = spree_order["order_id"] if spree_order
 
     respond_to do |format|
-      if @purchase.save
-        format.html { redirect_to @purchase, notice: t("activerecord.models.purchase") + t("messages.successfully_created") }
+      if spree_order && @purchase.save
+        format.html { redirect_to purchases_path, notice: t("activerecord.models.purchase") + t("messages.successfully_created") }
         format.json { render :show, status: :created, location: @purchase }
       else
-        format.html { render :new }
+        format.html { redirect_to purchases_path, alert: t("activerecord.models.purchase") + t("messages.not_created") }
         format.json { render json: @purchase.errors, status: :unprocessable_entity }
       end
     end
@@ -132,6 +141,6 @@ class PurchasesController < ApplicationController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def purchase_params
-    params[:purchase]
+    params.require(:purchase).permit(:spree_product_id, :spree_order_id, :amount)
   end
 end

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151230025412) do
+ActiveRecord::Schema.define(version: 20160118041217) do
 
   create_table "friendly_id_slugs", force: :cascade do |t|
     t.string   "slug",           limit: 255, null: false
@@ -50,6 +50,17 @@ ActiveRecord::Schema.define(version: 20151230025412) do
     t.datetime "created_at",            null: false
     t.datetime "updated_at",            null: false
   end
+
+  create_table "purchases", force: :cascade do |t|
+    t.integer  "spree_product_id", limit: 4
+    t.integer  "spree_order_id",   limit: 4
+    t.integer  "amount",           limit: 4
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+  end
+
+  add_index "purchases", ["spree_order_id"], name: "index_purchases_on_spree_order_id", using: :btree
+  add_index "purchases", ["spree_product_id"], name: "index_purchases_on_spree_product_id", using: :btree
 
   create_table "spree_addresses", force: :cascade do |t|
     t.string   "firstname",         limit: 255
@@ -1249,5 +1260,7 @@ ActiveRecord::Schema.define(version: 20151230025412) do
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
 
   add_foreign_key "prices", "spree_products"
+  add_foreign_key "purchases", "spree_orders"
+  add_foreign_key "purchases", "spree_products"
   add_foreign_key "suppliers", "spree_products"
 end
