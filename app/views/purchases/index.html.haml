@@ -1,5 +1,6 @@
 %h1= t("activerecord.models.purchase") + t("views.index")
 
+.right= link_to t("links.purchase.create_orders"), spree_purchases_create_orders_path, :method => :get, :data => { :confirm => t("messages.are_you_sure") }, class: "btn btn-info"
 .right= link_to t("links.price.update"), spree_purchases_update_price_path, :method => :get, :data => { :confirm => t("messages.are_you_sure") }, class: "btn btn-default"
 
 -# = paginate @spree_orders
@@ -13,7 +14,7 @@
       %th=t "activerecord.attributes.spree/line_item.quantity"
       %th=t "views.purchase.purchased"
       %th=t "views.purchase.needed_to_be_purchased"
-      %th=t "views.purchase.amount"
+      %th=t "activerecord.attributes.purchase.amount"
 
   %tbody
     - if @spree_products

@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :accounts
   resources :purchases
   resources :profits
   devise_for :users
@@ -26,6 +27,7 @@ Rails.application.routes.draw do
   get 'spree/products/:id/update_price' => 'spree/products#update_price'
   get 'spree/products/update_price/all' => 'spree/products#update_prices'
   get 'spree/purchases/update_price' => 'purchases#update_prices'
+  get 'spree/purchases/create_orders' => 'purchases#create_orders'
 
   # Example of named route that can be invoked with purchase_url(id: product.id)
   #   get 'products/:id/purchase' => 'catalog#purchase', as: :purchase

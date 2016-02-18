@@ -12,6 +12,7 @@ ja:
       user: user  #g
       profit: 粗利設定
       purchase: 仕入
+      account: アカウント
 
     attributes:
       spree/address:
@@ -164,6 +165,8 @@ ja:
         selling_price: 販売価格
         spree_product: :activerecord.models.spree_product
         yahoo: ヤフー
+        bikepartscenter: バイクパーツセンター タイヤ専門館
+        nbstire: bikepartscenter
 
       supplier:
         amazon: amazon  #g
@@ -193,6 +196,16 @@ ja:
       profit:
         percentage: パーセンテージ
 
+      purchase:
+        spree_order: :activerecord.models.spree_order  #g
+        spree_product: :activerecord.models.spree_product  #g
+        amount: 仕入割当
+
+      account:
+        supplier: :activerecord.models.supplier
+        identifier: ID
+        password: パスワード
+
   links:
     back: 戻る
     back_to_top: トップへ戻る
@@ -218,6 +231,7 @@ ja:
 
     purchase:
       create: 在庫割当
+      create_orders: 注文
 
     user:
       sign_in: サインイン
@@ -248,7 +262,6 @@ ja:
 
     purchase:
       purchased: 発注済
-      amount: 仕入割当
       needed_to_be_purchased: 必要注文数
 
     spree/product:

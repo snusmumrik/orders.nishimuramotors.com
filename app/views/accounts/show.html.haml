@@ -1,0 +1,12 @@
+%p
+  %b= t("activerecord.attributes.account.supplier")
+  = @account.supplier
+%p
+  %b= t("activerecord.attributes.account.identifier")
+  = @account.identifier
+%p
+  %b= t("activerecord.attributes.account.password")
+  -# = @account.password
+
+= link_to t("links.edit"), edit_account_path(@account), class: "btn btn-default"
+= link_to t("links.back"), accounts_path, class: "btn btn-default"

@@ -1,0 +1,23 @@
+%h1= t("activerecord.models.account") + t("views.index")
+
+%table.table
+  %thead
+    %tr
+      %th= t("activerecord.attributes.account.supplier")
+      %th= t("activerecord.attributes.account.identifier")
+      %th
+      %th
+      %th
+
+  %tbody
+    - @accounts.each do |account|
+      %tr
+        %td= account.supplier
+        %td= account.identifier
+        %td= link_to t("links.show"), account, class: "btn btn-default"
+        %td= link_to t("links.edit"), edit_account_path(account), class: "btn btn-default"
+        %td= link_to t("links.destroy"), account, :method => :delete, :data => { :confirm => t("messages.are_you_sure") }, class: "btn btn-default"
+
+%br
+
+= link_to t("links.new") + t("activerecord.models.account"), new_account_path
