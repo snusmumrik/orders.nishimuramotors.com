@@ -92,57 +92,53 @@ class PurchasesController < ApplicationController
   end
 
   def set_purchases
+    @purchase_hash = Hash.new {|hash, key| hash[key] = 0}
     @spree_orders = Spree::Order.where(["shipment_state = ?", "ready"]).order("created_at DESC")# .page params[:page]
 
-    line_items_array = ActiveRecord::Base.connection.select_all("select * from spree_orders a left join spree_line_items b on a.id = b.order_id left join spree_variants c on b.variant_id = c.id where a.payment_state = 'paid' and a.id in (#{@spree_orders.pluck(:id).join(',')})").to_hash unless @spree_orders.blank?
+    unless @spree_orders.blank?
+      line_items_array = ActiveRecord::Base.connection.select_all("select * from spree_orders a left join spree_line_items b on a.id = b.order_id left join spree_variants c on b.variant_id = c.id where a.payment_state = 'paid' and a.id in (#{@spree_orders.pluck(:id).join(',')})").to_hash
+      product_array = Array.new
+      @quantity_hash = Hash.new {|hash, key| hash[key] = 0}
 
-    product_array = Array.new
-    @quantity_hash = Hash.new {|hash, key| hash[key] = 0}
-
-    if line_items_array
       line_items_array.each do |l|
         product_array << l["product_id"]
         @quantity_hash.store(l["product_id"], @quantity_hash[l["product_id"]] += l["quantity"].to_i)
       end
-    end
+      @spree_products = Spree::Product.includes(:price).where(["id in (?)", product_array.sort.uniq])
+      purchase_array = ActiveRecord::Base.connection.select_all("select * from purchases where spree_order_id in (#{@spree_orders.pluck(:id).join(',')})").to_hash
+      purchase_array.each do |p|
+        @purchase_hash[p["spree_product_id"]] += p["amount"]
+      end
 
-    @spree_products = Spree::Product.includes(:price).where(["id in (?)", product_array.sort.uniq])
+      @supplier_hash = Hash.new
+      suppliers = Supplier.where(["spree_product_id in (?)", product_array.sort.uniq]).inject(Hash.new){|hash, s| hash[s.spree_product_id] = s; hash }
+      @spree_products.each do |p|
+        # supplier = Supplier.where(["spree_product_id = ?", spree_product.id]).first
+        supplier = suppliers[p.id]
 
-    purchase_array = ActiveRecord::Base.connection.select_all("select * from purchases where spree_order_id in (#{@spree_orders.pluck(:id).join(',')})").to_hash
-    @purchase_hash = Hash.new {|hash, key| hash[key] = 0}
-
-    purchase_array.each do |p|
-      @purchase_hash[p["spree_product_id"]] += p["amount"]
-    end
-
-    @supplier_hash = Hash.new
-    suppliers = Supplier.where(["spree_product_id in (?)", product_array.sort.uniq]).inject(Hash.new){|hash, s| hash[s.spree_product_id] = s; hash }
-    @spree_products.each do |p|
-      # supplier = Supplier.where(["spree_product_id = ?", spree_product.id]).first
-      supplier = suppliers[p.id]
-
-      case p.price.lowest_price
-      when p.price.ngsj
-        hash = {name: t("activerecord.attributes.supplier.ngsj"), url: supplier.ngsj}
-        @supplier_hash.store(p.id, hash)
-      when p.price.bikepartscenter
-        hash = {name: t("activerecord.attributes.supplier.bikepartscenter"), url: supplier.bikepartscenter}
-        @supplier_hash.store(p.id, hash)
-      when p.price.iiparts
-        hash = {name: t("activerecord.attributes.supplier.iiparts"), url: supplier.iiparts}
-        @supplier_hash.store(p.id, hash)
-      when p.price.nbstire
-        hash = {name: t("activerecord.attributes.supplier.nbstire"), url: supplier.nbstire}
-        @supplier_hash.store(p.id, hash)
-      when p.price.amazon
-        hash = {name: t("activerecord.attributes.supplier.amazon"), url: supplier.amazon}
-        @supplier_hash.store(p.id, hash)
-      when p.price.rakuten
-        hash = {name: t("activerecord.attributes.supplier.rakuten"), url: supplier.rakuten}
-        @supplier_hash.store(p.id, hash)
-      when p.price.yahoo
-        hash = {name: t("activerecord.attributes.supplier.yahoo"), url: supplier.yahoo}
-        @supplier_hash.store(p.id, hash)
+        case p.price.lowest_price
+        when p.price.ngsj
+          hash = {name: t("activerecord.attributes.supplier.ngsj"), url: supplier.ngsj}
+          @supplier_hash.store(p.id, hash)
+        when p.price.bikepartscenter
+          hash = {name: t("activerecord.attributes.supplier.bikepartscenter"), url: supplier.bikepartscenter}
+          @supplier_hash.store(p.id, hash)
+        when p.price.iiparts
+          hash = {name: t("activerecord.attributes.supplier.iiparts"), url: supplier.iiparts}
+          @supplier_hash.store(p.id, hash)
+        when p.price.nbstire
+          hash = {name: t("activerecord.attributes.supplier.nbstire"), url: supplier.nbstire}
+          @supplier_hash.store(p.id, hash)
+        when p.price.amazon
+          hash = {name: t("activerecord.attributes.supplier.amazon"), url: supplier.amazon}
+          @supplier_hash.store(p.id, hash)
+        when p.price.rakuten
+          hash = {name: t("activerecord.attributes.supplier.rakuten"), url: supplier.rakuten}
+          @supplier_hash.store(p.id, hash)
+        when p.price.yahoo
+          hash = {name: t("activerecord.attributes.supplier.yahoo"), url: supplier.yahoo}
+          @supplier_hash.store(p.id, hash)
+        end
       end
     end
   end
