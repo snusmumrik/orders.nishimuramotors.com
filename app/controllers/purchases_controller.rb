@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 require "mechanize"
 require "selenium-webdriver"
+require "headless"
 
 class PurchasesController < ApplicationController
   before_action :set_purchase, only: [:show, :edit, :update, :destroy]
@@ -147,220 +148,244 @@ class PurchasesController < ApplicationController
     set_purchases
     set_accounts
 
-    @suppliers = @supplier_hash.inject(Hash.new{|hash, key| hash[key] = Array.new}){|hash, s| hash[s[1][:name]] << {spree_product_id: s[0], url: s[1][:url]}; hash }
-    @suppliers.each do |s|
-      supplier = s[0]
-      puts supplier
+    headless = Headless.new
+    headless.start
+    driver = Selenium::WebDriver.for :chrome
 
-      driver = Selenium::WebDriver.for :chrome
+    begin
+      @suppliers = @supplier_hash.inject(Hash.new{|hash, key| hash[key] = Array.new}){|hash, s| hash[s[1][:name]] << {spree_product_id: s[0], url: s[1][:url]}; hash }
+      @suppliers.each do |s|
+        supplier = s[0]
+        puts supplier
 
-      case s[0]
-      when "バイクパーツセンター"
-        s[1].each do |hash|
-          url = hash[:url]
-          puts url
+        case s[0]
+        when "バイクパーツセンター"
+          s[1].each do |hash|
+            url = hash[:url]
+            puts url
 
-          driver.navigate.to(url)
-          Selenium::WebDriver::Support::Select.new(driver.find_element(:id, "purchase_qty").find_element(:xpath, "select")).select_by(:value, @quantity_hash[hash[:spree_product_id]].to_s)
-          driver.find_element(:id, "submit_cart_input_btn").click
-        end
+            driver.navigate.to(url)
+            puts driver.title
 
-        driver.find_element(:name, "go-next").click
-        driver.find_element(:id, "login_email").send_keys(@accounts[supplier].identifier)
-        driver.find_element(:id, "login_password").send_keys(@accounts[supplier].password)
-        driver.find_element(:id, "login").click
+            Selenium::WebDriver::Support::Select.new(driver.find_element(:id, "purchase_qty").find_element(:xpath, "select")).select_by(:value, @quantity_hash[hash[:spree_product_id]].to_s)
+            driver.find_element(:id, "submit_cart_input_btn").click
+          end
 
-        driver.find_element(:name, "go-next").click
+          driver.find_element(:name, "go-next").click
+          driver.find_element(:id, "login_email").send_keys(@accounts[supplier].identifier)
+          driver.find_element(:id, "login_password").send_keys(@accounts[supplier].password)
+          driver.find_element(:id, "login").click
 
-        driver.find_element(:name, "go-next").click
+          driver.find_element(:name, "go-next").click
 
-        driver.find_element(:name, "pay_procedure").click
-        driver.find_element(:name, "go-next").click
+          driver.find_element(:name, "go-next").click
 
-        driver.find_element(:name, "go-next").click
+          driver.find_element(:name, "pay_procedure").click
+          driver.find_element(:name, "go-next").click
+
+          driver.find_element(:name, "go-next").click
 
 
-        #
-        #Mechanize
-        #
+          #
+          #Mechanize
+          #
 
-        # Mechanize.start do |agent|
-        #   s[1].each do |hash|
-        #     url = hash[:url]
-        #     puts url
+          # Mechanize.start do |agent|
+          #   s[1].each do |hash|
+          #     url = hash[:url]
+          #     puts url
 
-        #     page = agent.get(url)
-        #     form = page.form_with(id: "productadd")
-        #     select = form.field_with(id: /cart_addquantity_/){|list|
-        #       list.option_with(text: @quantity_hash[hash[:spree_product_id]].to_s).select
-        #     }
-        #     button = form.button_with(id: "submit_cart_input_btn")
-        #     agent.submit(form, button)
-        #   end
-        #   cart_page = agent.get("http://nbsj.ocnk.net/cart")
-        #   cart_form = cart_page.form_with(id: "register")
-        #   cart_button = cart_form.button_with(value: "レジに進む")
+          #     page = agent.get(url)
+          #     form = page.form_with(id: "productadd")
+          #     select = form.field_with(id: /cart_addquantity_/){|list|
+          #       list.option_with(text: @quantity_hash[hash[:spree_product_id]].to_s).select
+          #     }
+          #     button = form.button_with(id: "submit_cart_input_btn")
+          #     agent.submit(form, button)
+          #   end
+          #   cart_page = agent.get("http://nbsj.ocnk.net/cart")
+          #   cart_form = cart_page.form_with(id: "register")
+          #   cart_button = cart_form.button_with(value: "レジに進む")
 
-        #   cart_page2 = agent.submit(cart_form, cart_button)
-        #   cart_form2 = cart_page2.form_with(id: "register")
-        #   cart_form2.field_with(id: "login_email").value = @accounts[supplier].identifier
-        #   cart_form2.field_with(id: "login_password").value = Account.decrypt(@accounts[supplier].password)
-        #   cart_button2 = cart_form2.button_with(value: "ログイン")
+          #   cart_page2 = agent.submit(cart_form, cart_button)
+          #   cart_form2 = cart_page2.form_with(id: "register")
+          #   cart_form2.field_with(id: "login_email").value = @accounts[supplier].identifier
+          #   cart_form2.field_with(id: "login_password").value = Account.decrypt(@accounts[supplier].password)
+          #   cart_button2 = cart_form2.button_with(value: "ログイン")
 
-        #   cart_page3 = agent.submit(cart_form2, cart_button2)
-        #   cart_form3 = cart_page3.form_with(id: "register")
-        #   cart_button3 = cart_form3.button_with(value: "次へ")
+          #   cart_page3 = agent.submit(cart_form2, cart_button2)
+          #   cart_form3 = cart_page3.form_with(id: "register")
+          #   cart_button3 = cart_form3.button_with(value: "次へ")
 
-        #   cart_page4 = agent.submit(cart_form3, cart_button3)
-        #   cart_form4 = cart_page4.form_with(id: "register")
-        #   cart_button4 = cart_form4.button_with(value: "次へ")
+          #   cart_page4 = agent.submit(cart_form3, cart_button3)
+          #   cart_form4 = cart_page4.form_with(id: "register")
+          #   cart_button4 = cart_form4.button_with(value: "次へ")
 
-        #   cart_page5 = agent.submit(cart_form4, cart_button4)
-        #   cart_form5 = cart_page5.form_with(id: "register")
-        #   cart_form5.radiobutton_with(name: "pay_procedure").check
-        #   cart_button5 = cart_form5.button_with(value: "次へ")
+          #   cart_page5 = agent.submit(cart_form4, cart_button4)
+          #   cart_form5 = cart_page5.form_with(id: "register")
+          #   cart_form5.radiobutton_with(name: "pay_procedure").check
+          #   cart_button5 = cart_form5.button_with(value: "次へ")
 
-        #   cart_page6 = agent.submit(cart_form5, cart_button5)
+          #   cart_page6 = agent.submit(cart_form5, cart_button5)
 
-        #   cart_form6 = cart_page6.form_with(id: "register")
-        #   cart_button6 = cart_form6.button_with(value: "購入する")
-        #   # agent.submit(cart_form6, cart_button6)
-        # end
-      when "バイクパーツセンター タイヤ専門館"
-        s[1].each do |hash|
-          url = hash[:url]
-          puts url
+          #   cart_form6 = cart_page6.form_with(id: "register")
+          #   cart_button6 = cart_form6.button_with(value: "購入する")
+          #   # agent.submit(cart_form6, cart_button6)
+          # end
+        when "バイクパーツセンター タイヤ専門館"
+          s[1].each do |hash|
+            url = hash[:url]
+            puts url
 
-          driver.navigate.to(url)
-          Selenium::WebDriver::Support::Select.new(driver.find_element(:id, "purchase_qty").find_element(:xpath, "select")).select_by(:value, @quantity_hash[hash[:spree_product_id]].to_s)
-          driver.find_element(:id, "submit_cart_input_btn").click
-        end
+            driver.navigate.to(url)
+            puts driver.title
 
-        driver.find_element(:name, "go-next").click
-        driver.find_element(:id, "login_email").send_keys(@accounts[supplier].identifier)
-        driver.find_element(:id, "login_password").send_keys(@accounts[supplier].password)
-        driver.find_element(:id, "login").click
+            Selenium::WebDriver::Support::Select.new(driver.find_element(:id, "purchase_qty").find_element(:xpath, "select")).select_by(:value, @quantity_hash[hash[:spree_product_id]].to_s)
+            driver.find_element(:id, "submit_cart_input_btn").click
+          end
 
-        driver.find_element(:name, "go-next").click
+          driver.find_element(:name, "go-next").click
+          driver.find_element(:id, "login_email").send_keys(@accounts[supplier].identifier)
+          driver.find_element(:id, "login_password").send_keys(@accounts[supplier].password)
+          driver.find_element(:id, "login").click
 
-        driver.find_element(:name, "go-next").click
+          driver.find_element(:name, "go-next").click
 
-        driver.find_element(:name, "pay_procedure").click
-        driver.find_element(:name, "go-next").click
+          driver.find_element(:name, "go-next").click
 
-        driver.find_element(:name, "go-next").click
-      when "NBS"
-        s[1].each do |hash|
-          url = hash[:url]
-          puts url
+          driver.find_element(:name, "pay_procedure").click
+          driver.find_element(:name, "go-next").click
 
-          driver.navigate.to(url)
-          quantity = driver.find_element(:name, "product_num")
-          quantity.clear
-          quantity.send_keys(@quantity_hash[hash[:spree_product_id]])
+          driver.find_element(:name, "go-next").click
+        when "NBS"
+          s[1].each do |hash|
+            url = hash[:url]
+            puts url
+
+            driver.navigate.to(url)
+            puts driver.title
+
+            quantity = driver.find_element(:name, "product_num")
+            quantity.clear
+            quantity.send_keys(@quantity_hash[hash[:spree_product_id]])
+            driver.find_element(:name, "submit").click
+          end
+
+          driver.find_element(:class, "btn_regi").click
+          driver.find_element(:name, "login_email").send_keys(@accounts[supplier].identifier)
+          driver.find_element(:name, "login_password").send_keys(@accounts[supplier].password)
+          driver.find_element(:class, "button").find_element(:class, "button").click
+
+          driver.find_element(:class, "btn_next").click
+
+          driver.find_element(:class, "btn_next").click
+
+          driver.find_element(:class, "btn_next").click
+
+          driver.find_element(:class, "btn_end").click
+        when "NBS タイヤ専門館"
+          driver.navigate.to("http://nbs-tire.ocnk.net/")
+          driver.find_element(:name, "email").send_keys(@accounts[supplier].identifier)
+          driver.find_element(:name, "password").send_keys(@accounts[supplier].password)
+          driver.find_element(:id, "side_login_submit").click
+
+          s[1].each do |hash|
+            url = hash[:url]
+            puts url
+
+            driver.navigate.to(url)
+            puts driver.title
+
+            Selenium::WebDriver::Support::Select.new(driver.find_element(:id, "purchase_qty").find_element(:xpath, "select")).select_by(:value, @quantity_hash[hash[:spree_product_id]].to_s)
+            driver.find_element(:id, "submit_cart_input_btn").click
+          end
+
+          driver.find_element(:name, "go-next").click
+
+          driver.find_element(:name, "go-next").click
+
+          driver.find_element(:name, "go-next").click
+
+          driver.find_element(:name, "pay_procedure").click
+          driver.find_element(:name, "go-next").click
+
+          driver.find_element(:name, "go-next").click
+        when "amazon"
+          s[1].each do |hash|
+            url = hash[:url]
+            puts url
+
+            driver.navigate.to(url)
+            puts driver.title
+
+            Selenium::WebDriver::Support::Select.new(driver.find_element(:name, "quantity")).select_by(:value, @quantity_hash[hash[:spree_product_id]].to_s)
+            driver.find_element(:id, "submit.add-to-cart").click
+          end
+
+          driver.find_element(:id, "hlb-ptc-btn-native").click
+          driver.find_element(:id, "ap_email").send_keys(@accounts[supplier].identifier)
+          driver.find_element(:id, "ap_password").send_keys(@accounts[supplier].password)
+          driver.find_element(:id, "signInSubmit").click
+
+          driver.find_element(:name, "placeYourOrder1").click
+        when "楽天"
+          s[1].each do |hash|
+            url = hash[:url]
+            puts url
+
+            driver.navigate.to(url)
+            puts driver.title
+
+            quantity = driver.find_element(:name, "units")
+            quantity.clear
+            quantity.send_keys(@quantity_hash[hash[:spree_product_id]])
+            driver.find_element(:class, "rCartBtn").click
+          end
+
           driver.find_element(:name, "submit").click
+          driver.find_element(:name, "u").send_keys(@accounts[supplier].identifier)
+          driver.find_element(:name, "p").send_keys(@accounts[supplier].password)
+          driver.find_element(:id, "login_submit").click
+
+          driver.find_element(:name, "commit").click
+        when "ヤフー"
+          s[1].each do |hash|
+            url = hash[:url]
+            puts url
+
+            driver.navigate.to(url)
+            puts driver.title
+
+            quantity = driver.find_element(:name, "vwquantity")
+            quantity.clear
+            quantity.send_keys(@quantity_hash[hash[:spree_product_id]])
+            driver.find_element(:class, "elCartButton").click
+          end
+
+          driver.find_element(:class, "dcEnterButton").click
+          driver.find_element(:id, "username").send_keys(@accounts[supplier].identifier)
+          driver.find_element(:id, "passwd").send_keys(@accounts[supplier].password)
+          driver.find_element(:id, ".save").click
+
+          driver.find_element(:id, "toReview").click
+
+
+          driver.find_element(:id, "removeCheck").click
+          driver.find_element(:name, "rate-later").click
+          driver.find_element(:name, "merchant-letter").click
+          driver.find_element(:name, "newsclip").click
+
+          driver.find_element(:name, "decide").click
         end
-
-        driver.find_element(:class, "btn_regi").click
-        driver.find_element(:name, "login_email").send_keys(@accounts[supplier].identifier)
-        driver.find_element(:name, "login_password").send_keys(@accounts[supplier].password)
-        driver.find_element(:class, "button").find_element(:class, "button").click
-
-        driver.find_element(:class, "btn_next").click
-
-        driver.find_element(:class, "btn_next").click
-
-        driver.find_element(:class, "btn_next").click
-
-        driver.find_element(:class, "btn_end").click
-      when "NBS タイヤ専門館"
-        driver.navigate.to("http://nbs-tire.ocnk.net/")
-        driver.find_element(:name, "email").send_keys(@accounts[supplier].identifier)
-        driver.find_element(:name, "password").send_keys(@accounts[supplier].password)
-        driver.find_element(:id, "side_login_submit").click
-
-        s[1].each do |hash|
-          url = hash[:url]
-          puts url
-
-          driver.navigate.to(url)
-          Selenium::WebDriver::Support::Select.new(driver.find_element(:id, "purchase_qty").find_element(:xpath, "select")).select_by(:value, @quantity_hash[hash[:spree_product_id]].to_s)
-          driver.find_element(:id, "submit_cart_input_btn").click
-        end
-
-        driver.find_element(:name, "go-next").click
-
-        driver.find_element(:name, "go-next").click
-
-        driver.find_element(:name, "go-next").click
-
-        driver.find_element(:name, "pay_procedure").click
-        driver.find_element(:name, "go-next").click
-
-        driver.find_element(:name, "go-next").click
-      when "amazon"
-        s[1].each do |hash|
-          url = hash[:url]
-          puts url
-
-          driver.navigate.to(url)
-          Selenium::WebDriver::Support::Select.new(driver.find_element(:name, "quantity")).select_by(:value, @quantity_hash[hash[:spree_product_id]].to_s)
-          driver.find_element(:id, "submit.add-to-cart").click
-        end
-
-        driver.find_element(:id, "hlb-ptc-btn-native").click
-        driver.find_element(:id, "ap_email").send_keys(@accounts[supplier].identifier)
-        driver.find_element(:id, "ap_password").send_keys(@accounts[supplier].password)
-        driver.find_element(:id, "signInSubmit").click
-
-        driver.find_element(:name, "placeYourOrder1").click
-      when "楽天"
-        s[1].each do |hash|
-          url = hash[:url]
-          puts url
-
-          driver.navigate.to(url)
-          quantity = driver.find_element(:name, "units")
-          quantity.clear
-          quantity.send_keys(@quantity_hash[hash[:spree_product_id]])
-          driver.find_element(:class, "rCartBtn").click
-        end
-
-        driver.find_element(:name, "submit").click
-        driver.find_element(:name, "u").send_keys(@accounts[supplier].identifier)
-        driver.find_element(:name, "p").send_keys(@accounts[supplier].password)
-        driver.find_element(:id, "login_submit").click
-
-        driver.find_element(:name, "commit").click
-      when "ヤフー"
-        s[1].each do |hash|
-          url = hash[:url]
-          puts url
-
-          driver.navigate.to(url)
-          quantity = driver.find_element(:name, "vwquantity")
-          quantity.clear
-          quantity.send_keys(@quantity_hash[hash[:spree_product_id]])
-          driver.find_element(:class, "elCartButton").click
-        end
-
-        driver.find_element(:class, "dcEnterButton").click
-        driver.find_element(:id, "username").send_keys(@accounts[supplier].identifier)
-        driver.find_element(:id, "passwd").send_keys(@accounts[supplier].password)
-        driver.find_element(:id, ".save").click
-
-        driver.find_element(:id, "toReview").click
-
-
-        driver.find_element(:id, "removeCheck").click
-        driver.find_element(:name, "rate-later").click
-        driver.find_element(:name, "merchant-letter").click
-        driver.find_element(:name, "newsclip").click
-
-        driver.find_element(:name, "decide").click
       end
-      driver.quit
+    rescue => ex
+      puts ex.messages
     end
+
+    driver.quit
+    headless.destroy
+
+    redirect_to purchases_path
   end
 
   private
