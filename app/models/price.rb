@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 require "mechanize"
+require "httpclient"
 
 class Price < ActiveRecord::Base
   belongs_to :spree_product
@@ -16,7 +17,7 @@ class Price < ActiveRecord::Base
     name = product.name
     puts "NAME: #{name}"
 
-    keyword = name.gsub(/(◆|★|電解|液付属付属|液付属|高品質|専用|保証付き|保証書付|１年間保証付き|1年保証付|タイプ|激安|防災・防犯システム等多目的バッテリー|ハーレー用|一本|1本|[^\s　]+互換|ジェルバッテリー|バイクバッテリー|バイク用タイヤ|【[^】]+】|（[^）]+）)|＜|＞/, "").gsub("　", " ").sub("GSユアサバッテリー", "GSユアサ バッテリー").strip
+    keyword = name.gsub(/(◆|★|電解|液付属付属|液付属|高品質|専用|保証付き|保証書付|１年間保証付き|1年保証付|タイプ|激安|防災・防犯システム等多目的バッテリー|ハーレー用|一本|1本|[^\s　]+互換|ジェルバッテリー|バイクバッテリー|バイク用タイヤ|【[^】]+】|（[^）]+）)|＜|＞/, " ").gsub("　", " ").sub("GSユアサバッテリー", "GSユアサ バッテリー").strip
     puts "KEYWORD: #{keyword}"
 
     if supplier = Supplier.where(["spree_product_id = ?", product.id]).first
@@ -77,7 +78,12 @@ class Price < ActiveRecord::Base
               p = page.at("#pricech").text.gsub(/(円|,)/, "")
               puts "PRICE: #{p} BY DETAIL"
 
-              price.ngsj = self.include_tax(p)
+              if page.at("#submit_cart_input_btn").nil?
+                puts "ITEM SOLD OUT"
+                price.ngsj = 0
+              else
+                price.ngsj = self.include_tax(p)
+              end
               supplier.ngsj = url
             elsif li = page.at("ul.layout160 li")
               detail_url = page.at("div.item_data a").attr("href")
@@ -88,7 +94,12 @@ class Price < ActiveRecord::Base
               # p = li.at("p.selling_price span").text.gsub(/(円|,)/, "")
               # puts "PRICE: #{p}"
 
-              price.ngsj = self.include_tax(p)
+              if page.at("#submit_cart_input_btn").nil?
+                puts "ITEM SOLD OUT"
+                price.ngsj = 0
+              else
+                price.ngsj = self.include_tax(p)
+              end
               supplier.ngsj = detail_url
             else
               puts "ITEM NOT FOUND"
@@ -163,6 +174,10 @@ class Price < ActiveRecord::Base
                 price.amazon = result[:price]
                 supplier.amazon = result[:url]
                 supplier.asin = result[:asin]
+              else
+                puts "ITEM NOT FOUND"
+                price.amazon = nil
+                supplier.amazon = nil
               end
             else
               puts "ITEM NOT FOUND"
@@ -199,7 +214,16 @@ class Price < ActiveRecord::Base
             supplier.rakuten = nil
           else
             page = agent.get(url)
-            if div = page.at("#tableSarch")
+            if page.at("#rakutenLimitedId_cart")
+              table = page.at("#rakutenLimitedId_cart")
+              trs = table.search("tr")
+              tds = trs[1].search("td")
+              p = tds[1].at(".price2").text.gsub(/(±ß\n|,)/, "")
+              puts "PRICE: #{p}"
+
+              price.rakuten = p
+              supplier.rakuten = url
+            elsif div = page.at("#tableSarch")
               if tr = div.search("tr")[1]
 
                 td = tr.search("td")[0]
@@ -221,20 +245,21 @@ class Price < ActiveRecord::Base
                 price.rakuten = p
                 supplier.rakuten = Supplier.shorten_url(Supplier.get_rakuten_link(detail_url))
               end
-            elsif page.at("#rakutenLimitedId_cart")
-              table = page.at("#rakutenLimitedId_cart")
-              trs = table.search("tr")
-              tds = trs[1].search("td")
-              p = tds[1].at(".price2").text.gsub(/(±ß\n|,)/, "")
-              puts "PRICE: #{p}"
-
-              price.rakuten = p
-              supplier.rakuten = url
             else
               puts "ITEM NOT FOUND"
               price.rakuten = nil
               supplier.rakuten = nil
             end
+
+            # if item = self.rakuten_search(keyword)
+            #   puts "PRICE: #{item["affiliateUrl"]}"
+            #   price.rakuten = item["affiliateUrl"]
+            #   supplier.rakuten = item["itemPrice"]
+            # else
+            #   puts "ITEM NOT FOUND"
+            #   price.rakuten = nil
+            #   supplier.rakuten = nil
+            # end
           end
         when 4
           if url.blank?
@@ -398,7 +423,9 @@ class Price < ActiveRecord::Base
     array << price.yahoo unless price.yahoo.nil?
     array << price.bikepartscenter unless price.bikepartscenter.nil?
     array << price.nbstire unless price.nbstire.nil?
+    array.uniq
     array.sort!
+    array.shift if array.first == 0
     puts array
 
     low = array.first
@@ -557,6 +584,26 @@ class Price < ActiveRecord::Base
       end
     end
     return result
+  end
+
+  def self.rakuten_search(keyword)
+    url = "https://app.rakuten.co.jp/services/api/IchibaItem/Search/20140222?applicationId=44603b9a441d5900a0f5c04f4cfd4b3c&affiliateId=0a279c43.ccc25294.0a279c44.3832c0b8&shopCode=bike-parts&hits=1&keyword=#{URI.encode(keyword)}"
+    # response = open(url).read
+    client = HTTPClient.new
+    response = client.get_content(url)
+    json = JSON.parse(response)
+    begin
+      item = json["Items"][0]["Item"]
+      # puts item
+      # puts item["affiliateUrl"]
+      # puts item["itemPrice"]
+    rescue
+      nil
+    end
+  end
+
+  def self.yahoo_search(keyword)
+    url = "http://shopping.yahooapis.jp/ShoppingWebService/V1/json/itemSearch?appid=dj0zaiZpPVNhQW5obmF0T3phOSZzPWNvbnN1bWVyc2VjcmV0Jng9N2M-&affiliate_type=vc&affiliate_id=http%3a%2f%2fck%2ejp%2eap%2evaluecommerce%2ecom%2fservlet%2freferral%3fsid%3d3286301%26pid%3d883992140%26vc_url%3d&query=#{keyword}"
   end
 
   def self.sign_in_to_nbstire(agent)

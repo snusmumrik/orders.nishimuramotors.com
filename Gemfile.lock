@@ -92,6 +92,7 @@ GEM
     httparty (0.13.7)
       json (~> 1.8)
       multi_xml (>= 0.5.2)
+    httpclient (2.7.1)
     i18n (0.7.0)
     i18n_generators (2.0.0)
       mechanize
@@ -244,6 +245,7 @@ DEPENDENCIES
   devise
   haml-rails (~> 0.9)
   headless
+  httpclient
   i18n_generators
   jbuilder (~> 2.0)
   jquery-rails

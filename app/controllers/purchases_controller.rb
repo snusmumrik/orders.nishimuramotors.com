@@ -75,7 +75,7 @@ class PurchasesController < ApplicationController
     @spree_orders = Spree::Order.where(["shipment_state != ?", "shipped"]).order("created_at DESC").page params[:page]
 
     begin
-      line_items_array = ActiveRecord::Base.connection.select_all("select * from spree_line_items left join spree_variants on spree_line_items.variant_id = spree_variants.id where order_id in (#{@spree_orders.pluck(:id).join(',')})").to_hash
+      line_items_array = ActiveRecord::Base.connection.select_all("select * from spree_line_items a left join spree_variants b on a.variant_id = b.id left join spree_orders c on a.order_id = c.id where shipment_state != 'shipped'").to_hash
 
       product_array = Array.new
 
@@ -83,7 +83,8 @@ class PurchasesController < ApplicationController
         product_array << l["product_id"]
       end
       @spree_products = Spree::Product.where(["id in (?)", product_array.sort.uniq])
-    rescue
+    rescue => ex
+      puts ex.message
     end
 
     @spree_products.each do |spree_product|
@@ -93,26 +94,31 @@ class PurchasesController < ApplicationController
   end
 
   def set_purchases
-    @purchase_hash = Hash.new {|hash, key| hash[key] = 0}
-    @spree_orders = Spree::Order.where(["shipment_state = ?", "ready"]).order("created_at DESC")# .page params[:page]
+    @purchased_hash = Hash.new {|hash, key| hash[key] = 0}
+    # @spree_orders = Spree::Order.where(["shipment_state = ?", "ready"]).order("created_at DESC")# .page params[:page]
+    spree_orders = ActiveRecord::Base.connection.select_all("select * from spree_orders a left join spree_line_items b on a.id = b.order_id left join spree_variants c on b.variant_id = c.id where a.shipment_state = 'ready' and a.payment_state = 'paid'").to_hash
 
-    unless @spree_orders.blank?
-      line_items_array = ActiveRecord::Base.connection.select_all("select * from spree_orders a left join spree_line_items b on a.id = b.order_id left join spree_variants c on b.variant_id = c.id where a.payment_state = 'paid' and a.id in (#{@spree_orders.pluck(:id).join(',')})").to_hash
+    unless spree_orders.blank?
       product_array = Array.new
       @quantity_hash = Hash.new {|hash, key| hash[key] = 0}
 
-      line_items_array.each do |l|
-        product_array << l["product_id"]
-        @quantity_hash.store(l["product_id"], @quantity_hash[l["product_id"]] += l["quantity"].to_i)
-      end
-      @spree_products = Spree::Product.includes(:price).where(["id in (?)", product_array.sort.uniq])
-      purchase_array = ActiveRecord::Base.connection.select_all("select * from purchases where spree_order_id in (#{@spree_orders.pluck(:id).join(',')})").to_hash
-      purchase_array.each do |p|
-        @purchase_hash[p["spree_product_id"]] += p["amount"]
+      spree_order_ids = Array.new
+      spree_orders.each do |o|
+        spree_order_ids << o["order_id"]
+        product_array << o["product_id"]
+        @quantity_hash[o["product_id"]] += o["quantity"]
       end
 
-      @supplier_hash = Hash.new
+      @spree_products = Spree::Product.includes(:price).where(["id in (?)", product_array.sort.uniq])
+      purchase_array = ActiveRecord::Base.connection.select_all("select * from purchases where spree_order_id in (#{spree_order_ids.join(',')})").to_hash
+
+      purchase_array.each do |p|
+        @purchased_hash[p["spree_product_id"]] += p["amount"]
+      end
+
+      @purchase_list = Hash.new
       suppliers = Supplier.where(["spree_product_id in (?)", product_array.sort.uniq]).inject(Hash.new){|hash, s| hash[s.spree_product_id] = s; hash }
+
       @spree_products.each do |p|
         # supplier = Supplier.where(["spree_product_id = ?", spree_product.id]).first
         supplier = suppliers[p.id]
@@ -120,25 +126,25 @@ class PurchasesController < ApplicationController
         case p.price.lowest_price
         when p.price.ngsj
           hash = {name: t("activerecord.attributes.supplier.ngsj"), url: supplier.ngsj}
-          @supplier_hash.store(p.id, hash)
+          @purchase_list.store(p.id, hash)
         when p.price.bikepartscenter
           hash = {name: t("activerecord.attributes.supplier.bikepartscenter"), url: supplier.bikepartscenter}
-          @supplier_hash.store(p.id, hash)
+          @purchase_list.store(p.id, hash)
         when p.price.iiparts
           hash = {name: t("activerecord.attributes.supplier.iiparts"), url: supplier.iiparts}
-          @supplier_hash.store(p.id, hash)
+          @purchase_list.store(p.id, hash)
         when p.price.nbstire
           hash = {name: t("activerecord.attributes.supplier.nbstire"), url: supplier.nbstire}
-          @supplier_hash.store(p.id, hash)
+          @purchase_list.store(p.id, hash)
         when p.price.amazon
           hash = {name: t("activerecord.attributes.supplier.amazon"), url: supplier.amazon}
-          @supplier_hash.store(p.id, hash)
+          @purchase_list.store(p.id, hash)
         when p.price.rakuten
           hash = {name: t("activerecord.attributes.supplier.rakuten"), url: supplier.rakuten}
-          @supplier_hash.store(p.id, hash)
+          @purchase_list.store(p.id, hash)
         when p.price.yahoo
           hash = {name: t("activerecord.attributes.supplier.yahoo"), url: supplier.yahoo}
-          @supplier_hash.store(p.id, hash)
+          @purchase_list.store(p.id, hash)
         end
       end
     end
@@ -148,27 +154,40 @@ class PurchasesController < ApplicationController
     set_purchases
     set_accounts
 
-    headless = Headless.new
-    headless.start
-    driver = Selenium::WebDriver.for :chrome
+    # headless = Headless.new
+    # headless.start
+    # driver = Selenium::WebDriver.for :chrome
 
-    begin
-      @suppliers = @supplier_hash.inject(Hash.new{|hash, key| hash[key] = Array.new}){|hash, s| hash[s[1][:name]] << {spree_product_id: s[0], url: s[1][:url]}; hash }
-      @suppliers.each do |s|
-        supplier = s[0]
+    # begin
+      purchase_list_hash = @purchase_list.inject(Hash.new{|hash, key| hash[key] = Array.new}){|hash, p| hash[p[1][:name]] << {spree_product_id: p[0], url: p[1][:url]}; hash }
+
+      purchase_list_hash.each do |purchase_list|
+        supplier = purchase_list[0]
         puts supplier
 
-        case s[0]
+        products = Array.new
+
+        case supplier
         when "バイクパーツセンター"
-          s[1].each do |hash|
+          driver = Selenium::WebDriver.for :chrome # for debug
+
+          purchase_list[1].each do |hash|
             url = hash[:url]
             puts url
+
+            products << hash[:spree_product_id]
 
             driver.navigate.to(url)
             puts driver.title
 
             Selenium::WebDriver::Support::Select.new(driver.find_element(:id, "purchase_qty").find_element(:xpath, "select")).select_by(:value, @quantity_hash[hash[:spree_product_id]].to_s)
             driver.find_element(:id, "submit_cart_input_btn").click
+          end
+
+          orders = ActiveRecord::Base.connection.select_all("select * from spree_orders a left join spree_line_items b on a.id = b.order_id left join spree_variants c on b.variant_id = c.id where a.payment_state = 'paid' and a.id in (#{products.join(',')})").to_hash
+
+          orders.each do |order|
+            Purchase.create(spree_product_id: order["product_id"], spree_order_id: order["order_id"], amount: @quantity_hash[order["product_id"]])
           end
 
           driver.find_element(:name, "go-next").click
@@ -183,7 +202,7 @@ class PurchasesController < ApplicationController
           driver.find_element(:name, "pay_procedure").click
           driver.find_element(:name, "go-next").click
 
-          driver.find_element(:name, "go-next").click
+          # driver.find_element(:name, "go-next").click
 
 
           #
@@ -191,7 +210,7 @@ class PurchasesController < ApplicationController
           #
 
           # Mechanize.start do |agent|
-          #   s[1].each do |hash|
+          #   purchase_list[1].each do |hash|
           #     url = hash[:url]
           #     puts url
 
@@ -232,158 +251,158 @@ class PurchasesController < ApplicationController
           #   cart_button6 = cart_form6.button_with(value: "購入する")
           #   # agent.submit(cart_form6, cart_button6)
           # end
-        when "バイクパーツセンター タイヤ専門館"
-          s[1].each do |hash|
-            url = hash[:url]
-            puts url
+        # when "バイクパーツセンター タイヤ専門館"
+        #   purchase_list[1].each do |hash|
+        #     url = hash[:url]
+        #     puts url
 
-            driver.navigate.to(url)
-            puts driver.title
+        #     driver.navigate.to(url)
+        #     puts driver.title
 
-            Selenium::WebDriver::Support::Select.new(driver.find_element(:id, "purchase_qty").find_element(:xpath, "select")).select_by(:value, @quantity_hash[hash[:spree_product_id]].to_s)
-            driver.find_element(:id, "submit_cart_input_btn").click
-          end
+        #     Selenium::WebDriver::Support::Select.new(driver.find_element(:id, "purchase_qty").find_element(:xpath, "select")).select_by(:value, @quantity_hash[hash[:spree_product_id]].to_s)
+        #     driver.find_element(:id, "submit_cart_input_btn").click
+        #   end
 
-          driver.find_element(:name, "go-next").click
-          driver.find_element(:id, "login_email").send_keys(@accounts[supplier].identifier)
-          driver.find_element(:id, "login_password").send_keys(@accounts[supplier].password)
-          driver.find_element(:id, "login").click
+        #   driver.find_element(:name, "go-next").click
+        #   driver.find_element(:id, "login_email").send_keys(@accounts[supplier].identifier)
+        #   driver.find_element(:id, "login_password").send_keys(@accounts[supplier].password)
+        #   driver.find_element(:id, "login").click
 
-          driver.find_element(:name, "go-next").click
+        #   driver.find_element(:name, "go-next").click
 
-          driver.find_element(:name, "go-next").click
+        #   driver.find_element(:name, "go-next").click
 
-          driver.find_element(:name, "pay_procedure").click
-          driver.find_element(:name, "go-next").click
+        #   driver.find_element(:name, "pay_procedure").click
+        #   driver.find_element(:name, "go-next").click
 
-          driver.find_element(:name, "go-next").click
-        when "NBS"
-          s[1].each do |hash|
-            url = hash[:url]
-            puts url
+        #   driver.find_element(:name, "go-next").click
+        # when "NBS"
+        #   purchase_list[1].each do |hash|
+        #     url = hash[:url]
+        #     puts url
 
-            driver.navigate.to(url)
-            puts driver.title
+        #     driver.navigate.to(url)
+        #     puts driver.title
 
-            quantity = driver.find_element(:name, "product_num")
-            quantity.clear
-            quantity.send_keys(@quantity_hash[hash[:spree_product_id]])
-            driver.find_element(:name, "submit").click
-          end
+        #     quantity = driver.find_element(:name, "product_num")
+        #     quantity.clear
+        #     quantity.send_keys(@quantity_hash[hash[:spree_product_id]])
+        #     driver.find_element(:name, "submit").click
+        #   end
 
-          driver.find_element(:class, "btn_regi").click
-          driver.find_element(:name, "login_email").send_keys(@accounts[supplier].identifier)
-          driver.find_element(:name, "login_password").send_keys(@accounts[supplier].password)
-          driver.find_element(:class, "button").find_element(:class, "button").click
+        #   driver.find_element(:class, "btn_regi").click
+        #   driver.find_element(:name, "login_email").send_keys(@accounts[supplier].identifier)
+        #   driver.find_element(:name, "login_password").send_keys(@accounts[supplier].password)
+        #   driver.find_element(:class, "button").find_element(:class, "button").click
 
-          driver.find_element(:class, "btn_next").click
+        #   driver.find_element(:class, "btn_next").click
 
-          driver.find_element(:class, "btn_next").click
+        #   driver.find_element(:class, "btn_next").click
 
-          driver.find_element(:class, "btn_next").click
+        #   driver.find_element(:class, "btn_next").click
 
-          driver.find_element(:class, "btn_end").click
-        when "NBS タイヤ専門館"
-          driver.navigate.to("http://nbs-tire.ocnk.net/")
-          driver.find_element(:name, "email").send_keys(@accounts[supplier].identifier)
-          driver.find_element(:name, "password").send_keys(@accounts[supplier].password)
-          driver.find_element(:id, "side_login_submit").click
+        #   driver.find_element(:class, "btn_end").click
+        # when "NBS タイヤ専門館"
+        #   driver.navigate.to("http://nbs-tire.ocnk.net/")
+        #   driver.find_element(:name, "email").send_keys(@accounts[supplier].identifier)
+        #   driver.find_element(:name, "password").send_keys(@accounts[supplier].password)
+        #   driver.find_element(:id, "side_login_submit").click
 
-          s[1].each do |hash|
-            url = hash[:url]
-            puts url
+        #   purchase_list[1].each do |hash|
+        #     url = hash[:url]
+        #     puts url
 
-            driver.navigate.to(url)
-            puts driver.title
+        #     driver.navigate.to(url)
+        #     puts driver.title
 
-            Selenium::WebDriver::Support::Select.new(driver.find_element(:id, "purchase_qty").find_element(:xpath, "select")).select_by(:value, @quantity_hash[hash[:spree_product_id]].to_s)
-            driver.find_element(:id, "submit_cart_input_btn").click
-          end
+        #     Selenium::WebDriver::Support::Select.new(driver.find_element(:id, "purchase_qty").find_element(:xpath, "select")).select_by(:value, @quantity_hash[hash[:spree_product_id]].to_s)
+        #     driver.find_element(:id, "submit_cart_input_btn").click
+        #   end
 
-          driver.find_element(:name, "go-next").click
+        #   driver.find_element(:name, "go-next").click
 
-          driver.find_element(:name, "go-next").click
+        #   driver.find_element(:name, "go-next").click
 
-          driver.find_element(:name, "go-next").click
+        #   driver.find_element(:name, "go-next").click
 
-          driver.find_element(:name, "pay_procedure").click
-          driver.find_element(:name, "go-next").click
+        #   driver.find_element(:name, "pay_procedure").click
+        #   driver.find_element(:name, "go-next").click
 
-          driver.find_element(:name, "go-next").click
-        when "amazon"
-          s[1].each do |hash|
-            url = hash[:url]
-            puts url
+        #   driver.find_element(:name, "go-next").click
+        # when "amazon"
+        #   purchase_list[1].each do |hash|
+        #     url = hash[:url]
+        #     puts url
 
-            driver.navigate.to(url)
-            puts driver.title
+        #     driver.navigate.to(url)
+        #     puts driver.title
 
-            Selenium::WebDriver::Support::Select.new(driver.find_element(:name, "quantity")).select_by(:value, @quantity_hash[hash[:spree_product_id]].to_s)
-            driver.find_element(:id, "submit.add-to-cart").click
-          end
+        #     Selenium::WebDriver::Support::Select.new(driver.find_element(:name, "quantity")).select_by(:value, @quantity_hash[hash[:spree_product_id]].to_s)
+        #     driver.find_element(:id, "submit.add-to-cart").click
+        #   end
 
-          driver.find_element(:id, "hlb-ptc-btn-native").click
-          driver.find_element(:id, "ap_email").send_keys(@accounts[supplier].identifier)
-          driver.find_element(:id, "ap_password").send_keys(@accounts[supplier].password)
-          driver.find_element(:id, "signInSubmit").click
+        #   driver.find_element(:id, "hlb-ptc-btn-native").click
+        #   driver.find_element(:id, "ap_email").send_keys(@accounts[supplier].identifier)
+        #   driver.find_element(:id, "ap_password").send_keys(@accounts[supplier].password)
+        #   driver.find_element(:id, "signInSubmit").click
 
-          driver.find_element(:name, "placeYourOrder1").click
-        when "楽天"
-          s[1].each do |hash|
-            url = hash[:url]
-            puts url
+        #   driver.find_element(:name, "placeYourOrder1").click
+        # when "楽天"
+        #   purchase_list[1].each do |hash|
+        #     url = hash[:url]
+        #     puts url
 
-            driver.navigate.to(url)
-            puts driver.title
+        #     driver.navigate.to(url)
+        #     puts driver.title
 
-            quantity = driver.find_element(:name, "units")
-            quantity.clear
-            quantity.send_keys(@quantity_hash[hash[:spree_product_id]])
-            driver.find_element(:class, "rCartBtn").click
-          end
+        #     quantity = driver.find_element(:name, "units")
+        #     quantity.clear
+        #     quantity.send_keys(@quantity_hash[hash[:spree_product_id]])
+        #     driver.find_element(:class, "rCartBtn").click
+        #   end
 
-          driver.find_element(:name, "submit").click
-          driver.find_element(:name, "u").send_keys(@accounts[supplier].identifier)
-          driver.find_element(:name, "p").send_keys(@accounts[supplier].password)
-          driver.find_element(:id, "login_submit").click
+        #   driver.find_element(:name, "submit").click
+        #   driver.find_element(:name, "u").send_keys(@accounts[supplier].identifier)
+        #   driver.find_element(:name, "p").send_keys(@accounts[supplier].password)
+        #   driver.find_element(:id, "login_submit").click
 
-          driver.find_element(:name, "commit").click
-        when "ヤフー"
-          s[1].each do |hash|
-            url = hash[:url]
-            puts url
+        #   driver.find_element(:name, "commit").click
+        # when "ヤフー"
+        #   purchase_list[1].each do |hash|
+        #     url = hash[:url]
+        #     puts url
 
-            driver.navigate.to(url)
-            puts driver.title
+        #     driver.navigate.to(url)
+        #     puts driver.title
 
-            quantity = driver.find_element(:name, "vwquantity")
-            quantity.clear
-            quantity.send_keys(@quantity_hash[hash[:spree_product_id]])
-            driver.find_element(:class, "elCartButton").click
-          end
+        #     quantity = driver.find_element(:name, "vwquantity")
+        #     quantity.clear
+        #     quantity.send_keys(@quantity_hash[hash[:spree_product_id]])
+        #     driver.find_element(:class, "elCartButton").click
+        #   end
 
-          driver.find_element(:class, "dcEnterButton").click
-          driver.find_element(:id, "username").send_keys(@accounts[supplier].identifier)
-          driver.find_element(:id, "passwd").send_keys(@accounts[supplier].password)
-          driver.find_element(:id, ".save").click
+        #   driver.find_element(:class, "dcEnterButton").click
+        #   driver.find_element(:id, "username").send_keys(@accounts[supplier].identifier)
+        #   driver.find_element(:id, "passwd").send_keys(@accounts[supplier].password)
+        #   driver.find_element(:id, ".save").click
 
-          driver.find_element(:id, "toReview").click
+        #   driver.find_element(:id, "toReview").click
 
 
-          driver.find_element(:id, "removeCheck").click
-          driver.find_element(:name, "rate-later").click
-          driver.find_element(:name, "merchant-letter").click
-          driver.find_element(:name, "newsclip").click
+        #   driver.find_element(:id, "removeCheck").click
+        #   driver.find_element(:name, "rate-later").click
+        #   driver.find_element(:name, "merchant-letter").click
+        #   driver.find_element(:name, "newsclip").click
 
-          driver.find_element(:name, "decide").click
+        #   driver.find_element(:name, "decide").click
         end
       end
-    rescue => ex
-      puts ex.messages
-    end
+    # rescue => ex
+    #   puts ex.messages
+    # end
 
-    driver.quit
-    headless.destroy
+    # driver.quit
+    # headless.destroy
 
     redirect_to purchases_path
   end

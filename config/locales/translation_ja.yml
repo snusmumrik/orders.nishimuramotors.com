@@ -199,7 +199,7 @@ ja:
       purchase:
         spree_order: :activerecord.models.spree_order  #g
         spree_product: :activerecord.models.spree_product  #g
-        amount: 仕入割当
+        amount: 仕入調整
 
       account:
         supplier: :activerecord.models.supplier
@@ -230,7 +230,7 @@ ja:
       unlist: 掲載停止
 
     purchase:
-      create: 在庫割当
+      create: 調整
       create_orders: 注文
 
     user:
