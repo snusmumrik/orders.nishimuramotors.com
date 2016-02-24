@@ -11,24 +11,29 @@ class Spree::ProductsController < ApplicationController
         @spree_products = Spree::Product.includes(:price, :supplier).where(["name LIKE ?", "%#{params[:keyword]}%"]).page params[:page]
       end
 
-      @price_hash = Hash.new
+      @price_hash = Price.where(["spree_product_id in (?)", @spree_products.pluck(:id)]).inject(Hash.new){|h, p| h.store(p.spree_product_id, p); h}
+      @supplier_hash = Supplier.where(["spree_product_id in (?)", @spree_products.pluck(:id)]).inject(Hash.new){|h, s| h.store(s.spree_product_id, s); h}
+
+      @lowest_price_hash = Hash.new
       prices = Price.where(["spree_product_id in (?)", @spree_products.pluck(:id)])
       prices.each do |p|
-        @price_hash.store(p.id, p.lowest_price)
+        @lowest_price_hash.store(p.id, p.lowest_price)
       end
     else
       if params[:keyword].blank?
-        spree_products = Spree::Product.find_by_sql(["SELECT a.* FROM spree_products a LEFT JOIN spree_products_taxons b ON a.id = b.product_id WHERE b.taxon_id = ?", params[:category]])
+        spree_products = Spree::Product.find_by_sql(["SELECT a.* FROM spree_products a LEFT JOIN spree_products_taxons b ON a.id = b.product_id  WHERE b.taxon_id = ?", params[:category]])
       else
         spree_products = Spree::Product.find_by_sql(["SELECT a.* FROM spree_products a LEFT JOIN spree_products_taxons b ON a.id = b.product_id WHERE b.taxon_id = ? AND a.name LIKE ?", params[:category], "%#{params[:keyword]}%"])
       end
-      @spree_products = Kaminari.paginate_array(spree_products).page params[:page]
 
+      @spree_products = Kaminari.paginate_array(spree_products).page params[:page]
       ids = @spree_products.inject(Array.new){|a, p| a << p.id; a}
-      @price_hash = Hash.new
-      prices = Price.where(["spree_product_id in (?)", ids])
-      prices.each do |p|
-        @price_hash.store(p.id, p.lowest_price)
+      @price_hash = Price.where(["spree_product_id in (?)", ids]).inject(Hash.new){|h, p| h.store(p.spree_product_id, p); h}
+      @supplier_hash = Supplier.where(["spree_product_id in (?)", ids]).inject(Hash.new){|h, s| h.store(s.spree_product_id, s); h}
+
+      @lowest_price_hash = Hash.new
+      @price_hash.each do |p|
+        @lowest_price_hash.store(p[0], p[1].lowest_price)
       end
     end
 

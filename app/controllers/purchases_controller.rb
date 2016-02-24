@@ -72,8 +72,6 @@ class PurchasesController < ApplicationController
   end
 
   def update_prices
-    @spree_orders = Spree::Order.where(["shipment_state != ?", "shipped"]).order("created_at DESC").page params[:page]
-
     begin
       line_items_array = ActiveRecord::Base.connection.select_all("select * from spree_line_items a left join spree_variants b on a.variant_id = b.id left join spree_orders c on a.order_id = c.id where shipment_state != 'shipped'").to_hash
 
@@ -95,15 +93,14 @@ class PurchasesController < ApplicationController
 
   def set_purchases
     @purchased_hash = Hash.new {|hash, key| hash[key] = 0}
-    # @spree_orders = Spree::Order.where(["shipment_state = ?", "ready"]).order("created_at DESC")# .page params[:page]
-    spree_orders = ActiveRecord::Base.connection.select_all("select * from spree_orders a left join spree_line_items b on a.id = b.order_id left join spree_variants c on b.variant_id = c.id where a.shipment_state = 'ready' and a.payment_state = 'paid'").to_hash
+    @spree_orders = ActiveRecord::Base.connection.select_all("select * from spree_orders a left join spree_line_items b on a.id = b.order_id left join spree_variants c on b.variant_id = c.id where a.shipment_state = 'ready' and a.payment_state = 'paid'").to_hash
 
-    unless spree_orders.blank?
+    unless @spree_orders.blank?
       product_array = Array.new
       @quantity_hash = Hash.new {|hash, key| hash[key] = 0}
 
       spree_order_ids = Array.new
-      spree_orders.each do |o|
+      @spree_orders.each do |o|
         spree_order_ids << o["order_id"]
         product_array << o["product_id"]
         @quantity_hash[o["product_id"]] += o["quantity"]
@@ -122,6 +119,8 @@ class PurchasesController < ApplicationController
       @spree_products.each do |p|
         # supplier = Supplier.where(["spree_product_id = ?", spree_product.id]).first
         supplier = suppliers[p.id]
+
+        next if p.price.lowest_price == 0
 
         case p.price.lowest_price
         when p.price.ngsj
@@ -151,6 +150,7 @@ class PurchasesController < ApplicationController
   end
 
   def create_orders
+    update_prices
     set_purchases
     set_accounts
 
@@ -158,7 +158,7 @@ class PurchasesController < ApplicationController
     headless.start
     driver = Selenium::WebDriver.for :chrome
 
-    begin
+    # begin
       purchase_list_hash = @purchase_list.inject(Hash.new{|hash, key| hash[key] = Array.new}){|hash, p| hash[p[1][:name]] << {spree_product_id: p[0], url: p[1][:url]}; hash }
 
       purchase_list_hash.each do |purchase_list|
@@ -180,12 +180,6 @@ class PurchasesController < ApplicationController
 
             Selenium::WebDriver::Support::Select.new(driver.find_element(:id, "purchase_qty").find_element(:xpath, "select")).select_by(:value, @quantity_hash[hash[:spree_product_id]].to_s)
             driver.find_element(:id, "submit_cart_input_btn").click
-          end
-
-          orders = ActiveRecord::Base.connection.select_all("select * from spree_orders a left join spree_line_items b on a.id = b.order_id left join spree_variants c on b.variant_id = c.id where a.payment_state = 'paid' and a.id in (#{products.join(',')})").to_hash
-
-          orders.each do |order|
-            Purchase.create(spree_product_id: order["product_id"], spree_order_id: order["order_id"], amount: @quantity_hash[order["product_id"]])
           end
 
           driver.find_element(:name, "go-next").click
@@ -394,12 +388,16 @@ class PurchasesController < ApplicationController
           driver.find_element(:name, "decide").click
         end
       end
-    rescue => ex
-      puts ex.messages
-    end
+    # rescue => ex
+    #   puts ex.messages
+    # end
 
     driver.quit
     headless.destroy
+
+    @spree_orders.each do |order|
+      Purchase.create(spree_product_id: order["product_id"], spree_order_id: order["order_id"], amount: @quantity_hash[order["product_id"]])
+    end
 
     redirect_to purchases_path
   end

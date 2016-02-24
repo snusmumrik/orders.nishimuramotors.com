@@ -31,52 +31,52 @@
     - @spree_products.each do |spree_product|
       %tr
         %td= spree_product.name
-        %td.center= number_to_currency spree_product.price.try(:selling_price)
+        %td.center= number_to_currency @price_hash[spree_product.id].selling_price
         %td.center
-          - if spree_product.price.try(:ngsj)
-            - if @price_hash[spree_product.id] == spree_product.price.try(:ngsj)
-              = link_to number_to_currency(spree_product.price.try(:ngsj)), spree_product.supplier.try(:ngsj), class: "btn btn-success", target: :blank
+          - if @price_hash[spree_product.id].ngsj
+            - if @lowest_price_hash[spree_product.id] == @price_hash[spree_product.id].ngsj
+              = link_to number_to_currency(@price_hash[spree_product.id].ngsj), @supplier_hash[spree_product.id].ngsj, class: "btn btn-success", target: :blank
             - else
-              = link_to number_to_currency(spree_product.price.try(:ngsj)), spree_product.supplier.try(:ngsj), class: "btn btn-default", target: :blank
+              = link_to number_to_currency(@price_hash[spree_product.id].ngsj), @supplier_hash[spree_product.id].ngsj, class: "btn btn-default", target: :blank
         %td.center
-          - if spree_product.price.try(:bikepartscenter)
-            - if @price_hash[spree_product.id] == spree_product.price.try(:bikepartscenter)
-              = link_to number_to_currency(spree_product.price.try(:bikepartscenter)), spree_product.supplier.try(:bikepartscenter), class: "btn btn-success", target: :blank
+          - if @price_hash[spree_product.id].bikepartscenter
+            - if @lowest_price_hash[spree_product.id] == @price_hash[spree_product.id].bikepartscenter
+              = link_to number_to_currency(@price_hash[spree_product.id].bikepartscenter), @supplier_hash[spree_product.id].bikepartscenter, class: "btn btn-success", target: :blank
             - else
-              = link_to number_to_currency(spree_product.price.try(:bikepartscenter)), spree_product.supplier.try(:bikepartscenter), class: "btn btn-default", target: :blank
+              = link_to number_to_currency(@price_hash[spree_product.id].bikepartscenter), @supplier_hash[spree_product.id].bikepartscenter, class: "btn btn-default", target: :blank
         %td.center
-          - if spree_product.price.try(:iiparts)
-            - if @price_hash[spree_product.id] == spree_product.price.try(:iiparts)
-              = link_to number_to_currency(spree_product.price.try(:iiparts)), spree_product.supplier.try(:iiparts), class: "btn btn-success", target: :blank
+          - if @price_hash[spree_product.id].iiparts
+            - if @lowest_price_hash[spree_product.id] == @price_hash[spree_product.id].iiparts
+              = link_to number_to_currency(@price_hash[spree_product.id].iiparts), @supplier_hash[spree_product.id].iiparts, class: "btn btn-success", target: :blank
             - else
-              = link_to number_to_currency(spree_product.price.try(:iiparts)), spree_product.supplier.try(:iiparts), class: "btn btn-default", target: :blank
+              = link_to number_to_currency(@price_hash[spree_product.id].iiparts), @supplier_hash[spree_product.id].iiparts, class: "btn btn-default", target: :blank
         %td.center
-          - if spree_product.price.try(:nbstire)
-            - if @price_hash[spree_product.id] == spree_product.price.try(:nbstire)
-              = link_to number_to_currency(spree_product.price.try(:nbstire)), spree_product.supplier.try(:nbstire), class: "btn btn-success", target: :blank
+          - if @price_hash[spree_product.id].nbstire
+            - if @lowest_price_hash[spree_product.id] == @price_hash[spree_product.id].nbstire
+              = link_to number_to_currency(@price_hash[spree_product.id].nbstire), @supplier_hash[spree_product.id].nbstire, class: "btn btn-success", target: :blank
             - else
-              = link_to number_to_currency(spree_product.price.try(:nbstire)), spree_product.supplier.try(:nbstire), class: "btn btn-default", target: :blank
+              = link_to number_to_currency(@price_hash[spree_product.id].nbstire), @supplier_hash[spree_product.id].nbstire, class: "btn btn-default", target: :blank
         %td.center
-          - if spree_product.price.try(:amazon)
-            - if @price_hash[spree_product.id] == spree_product.price.try(:amazon)
-              = link_to number_to_currency(spree_product.price.try(:amazon)), spree_product.supplier.try(:amazon), class: "btn btn-success", target: :blank
+          - if @price_hash[spree_product.id].amazon
+            - if @lowest_price_hash[spree_product.id] == @price_hash[spree_product.id].amazon
+              = link_to number_to_currency(@price_hash[spree_product.id].amazon), @supplier_hash[spree_product.id].amazon, class: "btn btn-success", target: :blank
             - else
-              = link_to number_to_currency(spree_product.price.try(:amazon)), spree_product.supplier.try(:amazon), class: "btn btn-default", target: :blank
+              = link_to number_to_currency(@price_hash[spree_product.id].amazon), @supplier_hash[spree_product.id].amazon, class: "btn btn-default", target: :blank
         %td.center
-          - if spree_product.price.try(:rakuten)
-            - if @price_hash[spree_product.id] == spree_product.price.try(:rakuten)
-              = link_to number_to_currency(spree_product.price.try(:rakuten)), spree_product.supplier.try(:rakuten) , class: "btn btn-success", target: :blank
+          - if @price_hash[spree_product.id].rakuten
+            - if @lowest_price_hash[spree_product.id] == @price_hash[spree_product.id].rakuten
+              = link_to number_to_currency(@price_hash[spree_product.id].rakuten), @supplier_hash[spree_product.id].rakuten , class: "btn btn-success", target: :blank
             - else
-              = link_to number_to_currency(spree_product.price.try(:rakuten)), spree_product.supplier.try(:rakuten) , class: "btn btn-default", target: :blank
+              = link_to number_to_currency(@price_hash[spree_product.id].rakuten), @supplier_hash[spree_product.id].rakuten , class: "btn btn-default", target: :blank
         %td.center
-          - if spree_product.price.try(:yahoo)
-            - if @price_hash[spree_product.id] == spree_product.price.try(:yahoo)
-              = link_to number_to_currency(spree_product.price.try(:yahoo)), spree_product.supplier.try(:yahoo), class: "btn btn-success", target: :blank
+          - if @price_hash[spree_product.id].yahoo
+            - if @lowest_price_hash[spree_product.id] == @price_hash[spree_product.id].yahoo
+              = link_to number_to_currency(@price_hash[spree_product.id].yahoo), @supplier_hash[spree_product.id].yahoo, class: "btn btn-success", target: :blank
             - else
-              = link_to number_to_currency(spree_product.price.try(:yahoo)), spree_product.supplier.try(:yahoo), class: "btn btn-default", target: :blank
+              = link_to number_to_currency(@price_hash[spree_product.id].yahoo), @supplier_hash[spree_product.id].yahoo, class: "btn btn-default", target: :blank
         %td.center
-          - if spree_product.supplier
-            = link_to t("links.edit"), edit_supplier_path(spree_product.supplier), class: "btn btn-default"
+          - if @supplier_hash[spree_product.id]
+            = link_to t("links.edit"), edit_supplier_path(@supplier_hash[spree_product.id]), class: "btn btn-default"
           - else
             = link_to t("links.edit"), "#{new_supplier_path}/#{spree_product.id}", class: "btn btn-default"
           -# = link_to t("links.show"), spree_product, class: "btn btn-default"
