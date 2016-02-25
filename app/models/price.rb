@@ -76,9 +76,8 @@ class Price < ActiveRecord::Base
           price.ngsj = nil
           supplier.ngsj = nil
         else
-          driver.navigate.to(url)
-
           begin
+            driver.navigate.to(url)
             driver.find_element(:id, "submit_cart_input_btn")
             if p = driver.find_element(:id, "pricech").text.gsub(/(円|,)/, "")
               puts "PRICE: #{p} without tax"
@@ -166,9 +165,8 @@ class Price < ActiveRecord::Base
           price.iiparts = nil
           supplier.iiparts = nil
         else
-          driver.navigate.to(url)
-
           begin
+            driver.navigate.to(url)
             driver.find_element(:name, "submit")
             begin
               text = driver.find_elements(:class, "CELL_2")[1].text.gsub(/(円|,)/, "")
@@ -290,9 +288,8 @@ class Price < ActiveRecord::Base
           price.rakuten = nil
           supplier.rakuten = nil
         else
-          driver.navigate.to(url)
-
           begin
+            driver.navigate.to(url)
             driver.find_element(:class, "rCartBtn")
             begin
               p = driver.find_element(:class, "price2").text.gsub(/(円|,)/, "")
@@ -363,9 +360,8 @@ class Price < ActiveRecord::Base
           price.yahoo = nil
           supplier.yahoo = nil
         else
-          driver.navigate.to(url)
-
           begin
+            driver.navigate.to(url)
             driver.find_element(:class, "elCartButton")
             begin
               p = driver.find_element(:class, "elNum").text.gsub(/,/, "")
@@ -428,9 +424,8 @@ class Price < ActiveRecord::Base
           price.bikepartscenter = nil
           supplier.bikepartscenter = nil
         else
-          driver.navigate.to(url)
-
           begin
+            driver.navigate.to(url)
             driver.find_element(:class, "cartaddinput")
             begin
               p = driver.find_element(:id, "pricech").text.gsub(/(円|,)/, "")
@@ -483,10 +478,9 @@ class Price < ActiveRecord::Base
           price.nbstire = nil
           supplier.nbstire = nil
         else
-          self.sign_in_to_nbstire_with_selenium(driver)
-          driver.navigate.to(url)
-
           begin
+            self.sign_in_to_nbstire_with_selenium(driver)
+            driver.navigate.to(url)
             driver.find_element(:id, "submit_cart_input_btn")
             begin
               p = driver.find_element(:id, "pricech").text.gsub(/(円|,)/, "")
@@ -790,12 +784,12 @@ class Price < ActiveRecord::Base
   # end
 
   def self.sign_in_to_nbstire_with_selenium(driver)
-    driver.navigate.to("http://nbs-tire.ocnk.net")
-    driver.find_element(:name, "email").send_keys(NBS_EMAIL)
-    driver.find_element(:name, "password").send_keys(NBS_PASSWORD)
-    driver.find_element(:id, "side_login_submit").click
-
     begin
+      driver.navigate.to("http://nbs-tire.ocnk.net")
+      driver.find_element(:name, "email").send_keys(NBS_EMAIL)
+      driver.find_element(:name, "password").send_keys(NBS_PASSWORD)
+      driver.find_element(:id, "side_login_submit").click
+
       driver.find_element(:class, "logoutinput")
       puts "SIGNED IN"
       return true
