@@ -98,7 +98,7 @@ class Spree::ProductsController < ApplicationController
   end
 
   def update_prices
-    Spree::Product.all.each do |spree_product|
+    Spree::Product.where(["available_on is not null"]).find_each(batch_size: 10) do |spree_product|
       Price.get_price(spree_product)
     end
     redirect_to spree_products_path
