@@ -1,6 +1,6 @@
 %h1= t("activerecord.models.spree/product") + t("views.index")
 
-.right= link_to t("links.price.update_all"), spree_products_update_price_all_path, :method => :get, :data => { :confirm => t("messages.are_you_sure") }, class: "btn btn-default"
+-# .right= link_to t("links.price.update_all"), spree_products_update_price_all_path, :method => :get, :data => { :confirm => t("messages.are_you_sure") }, class: "btn btn-default"
 
 = form_for Spree::Product.new, url: spree_products_path, remote: false, html: {method: :get, class: "form-inline search-form"} do |f|
   = f.label t("views.spree/product.category"), class: "title float-left"
