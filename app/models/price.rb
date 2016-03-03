@@ -577,10 +577,12 @@ class Price < ActiveRecord::Base
     array << price.yahoo unless price.yahoo.nil?
     array << price.bikepartscenter unless price.bikepartscenter.nil?
     array << price.nbstire unless price.nbstire.nil?
-    array.uniq
-    array.sort!
+    begin
+      array.uniq!.sort!
+    rescue
+    end
     array.shift if array.first == 0
-    puts array
+    # puts array
 
     low = array.first
     high = array.last
