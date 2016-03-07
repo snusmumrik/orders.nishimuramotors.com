@@ -1,5 +1,5 @@
 class ProfitsController < ApplicationController
-  before_action :set_spree_product, only: [:show, :edit, :update, :destroy, :update_price]
+  before_action :set_spree_product, only: [:show, :edit, :update, :destroy]
 
   # GET /profits
   # GET /profits.json
