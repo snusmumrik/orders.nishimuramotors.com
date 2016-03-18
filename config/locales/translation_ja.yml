@@ -199,7 +199,7 @@ ja:
       purchase:
         spree_order: :activerecord.models.spree_order  #g
         spree_product: :activerecord.models.spree_product  #g
-        amount: 仕入調整
+        amount: 在庫調整
 
       account:
         supplier: :activerecord.models.supplier
