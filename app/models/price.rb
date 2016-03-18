@@ -592,19 +592,17 @@ class Price < ActiveRecord::Base
     percentage = Profit.last.try(:percentage) || 0.5
 
     if !low.nil? && !high.nil?
-      new_price = (low + (high - low) * percentage).round(-1)
+      if high - low > 1000
+        new_price = (low + (high - low) * percentage).round(-1)
+      else
+        new_price = low + 500
+      end
       lowest_price = low
     elsif !low.nil?
-      new_price = (low * (1 + percentage)).round(-1)
+      new_price = low + 500
       lowest_price = low
     else
       lowest_price = 0
-    end
-
-    # 暫定的に最安値に500円プラス
-    if lowest_price > 0
-      new_price = lowest_price + 500
-    else
       new_price = 0
       product.update_attribute(:available_on, nil)
     end
